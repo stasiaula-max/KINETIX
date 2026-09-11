@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV & Document Services — Rate Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#12212e;
+    --paper:#f6f3ec;
+    --card:rgba(255, 255, 255, 0.85);
+    --line:rgba(217, 211, 196, 0.6);
+    --brass:#a8752f;
+    --brass-dark:#8a5f24;
+    --ok:#2f6f4f;
+    --err:#b3452e;
+    --radius:16px;
+    --field-bg:rgba(253, 252, 250, 0.6);
+    --muted:#5a5045;
+    --hint:#8a8070;
+    --chip-bg:rgba(240, 234, 217, 0.8);
+    --glass-border:1px solid rgba(255, 255, 255, 0.4);
+    --glass-shadow:0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  }
+  body.dark{
+    --ink:#eae4d6;
+    --paper:#161310;
+    --card:rgba(33, 29, 24, 0.85);
+    --line:rgba(58, 52, 43, 0.6);
+    --brass:#d4a24e;
+    --brass-dark:#e8b968;
+    --ok:#6fc79a;
+    --err:#e08265;
+    --field-bg:rgba(26, 23, 18, 0.6);
+    --muted:#b3ab99;
+    --hint:#7a7264;
+    --chip-bg:rgba(44, 38, 32, 0.8);
+    --glass-border:1px solid rgba(255, 255, 255, 0.1);
+    --glass-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    transition:background .25s ease, color .25s ease;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before, body::after{
+    content:'';
+    position:fixed;
+    width:300px;
+    height:300px;
+    border-radius:50%;
+    filter:blur(80px);
+    z-index:-1;
+    opacity:0.4;
+    animation:float-bg 10s infinite alternate;
+  }
+  body::before{background:var(--brass);top:-50px;left:-50px;}
+  body::after{background:#40c8dc;bottom:-50px;right:-50px;animation-delay:2s;}
+  @keyframes float-bg{0%{transform:translate(0,0);}100%{transform:translate(30px,50px);}}
+
+  .wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.25rem 5rem;position:relative;z-index:1;}
+
+  header.hero{padding:1rem 0 1.5rem;border-bottom:2px solid var(--ink);margin-bottom:1.5rem;text-align:center;}
+  header.hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(1.6rem,5vw,2.2rem);
+    margin:0 0 .4rem;
+    letter-spacing:-0.01em;
+    background:linear-gradient(100deg, var(--ink) 30%, var(--brass) 45%, #e8c98a 50%, var(--brass) 55%, var(--ink) 70%);
+    background-size:250% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:shimmer 4s linear infinite;
+  }
+  @keyframes shimmer{0%{background-position:200% center;}100%{background-position:-50% center;}}
+  header.hero p{margin:0 auto;color:var(--muted);font-size:.92rem;max-width:52ch;}
+
+  .card{
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-radius:var(--radius);
+    padding:1.4rem;
+    margin-bottom:1.1rem;
+  }
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-size:1.1rem;
+    font-weight:600;
+    margin:0 0 .9rem;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .card h2 i{color:var(--brass);font-size:1rem;}
+
+  /* Payment policy banner */
+  .policy-banner{
+    background:rgba(200,140,30,0.12);
+    border:1.5px solid var(--brass);
+    border-radius:12px;
+    padding:1rem 1.1rem;
+    margin-bottom:1.5rem;
+    font-size:.85rem;
+    display:flex;
+    gap:.7rem;
+    align-items:flex-start;
+  }
+  .policy-banner i{color:var(--brass-dark);font-size:1.1rem;margin-top:.1rem;}
+  .policy-banner strong{display:block;margin-bottom:.2rem;}
+
+  /* Currency picker */
+  .currency-bar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    margin-bottom:1.5rem;
+    font-size:.85rem;
+    color:var(--muted);
+    flex-wrap:wrap;
+  }
+  .currency-bar select{
+    padding:.45rem .7rem;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--field-bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:.85rem;
+    cursor:pointer;
+  }
+  .currency-bar select:focus{outline:none;border-color:var(--brass);}
+
+  /* Service cards — clickable */
+  .service-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:.9rem 1.1rem;
+    margin-bottom:.7rem;
+    background:var(--field-bg);
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease;
+    text-decoration:none;
+    color:inherit;
+  }
+  .service-card:hover{transform:translateY(-2px);border-color:var(--brass);}
+  .service-card:last-child{margin-bottom:0;}
+  .service-info h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600;}
+  .service-info p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.4;}
+  .service-price{
+    text-align:right;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .service-price .amount{font-size:1.05rem;font-weight:700;color:var(--brass-dark);}
+  .service-price .native{display:block;font-size:.7rem;color:var(--hint);margin-top:.1rem;}
+  .service-price i{margin-left:.4rem;color:var(--hint);}
+
+  .bundle-badge{
+    display:inline-block;
+    background:var(--ok);
+    color:#fff;
+    font-size:.68rem;
+    font-weight:600;
+    padding:.15rem .5rem;
+    border-radius:20px;
+    margin-left:.4rem;
+  }
+
+  /* Terms list */
+  .terms-list{margin:0;padding-left:1.1rem;font-size:.85rem;color:var(--muted);}
+  .terms-list li{margin-bottom:.5rem;}
+  .terms-list strong{color:var(--ink);}
+
+  /* Payment methods */
+  .pay-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:.8rem;
+  }
+  .pay-tile{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:.9rem;
+    background:var(--field-bg);
+    text-align:center;
+    position:relative;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .pay-tile:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,0.08);}
+  .pay-tile .pay-icon{
+    width:44px;height:44px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto .5rem;
+    font-size:1.2rem;
+    color:#fff;
+  }
+  .pay-tile .pay-name{font-weight:600;font-size:.85rem;margin-bottom:.3rem;}
+  .pay-tile .pay-detail{font-size:.72rem;color:var(--muted);word-break:break-all;}
+  .pay-tile .pay-badge{
+    display:inline-block;
+    font-size:.62rem;
+    font-weight:700;
+    padding:.15rem .5rem;
+    border-radius:20px;
+    margin-top:.4rem;
+  }
+  .pay-badge.free{background:rgba(47,111,79,0.15);color:var(--ok);}
+  .pay-badge.fee{background:rgba(179,69,46,0.12);color:var(--err);}
+  .pay-badge.soon{background:rgba(138,128,112,0.15);color:var(--hint);}
+  .copy-btn{
+    background:none;
+    border:none;
+    color:var(--brass-dark);
+    font-size:.7rem;
+    cursor:pointer;
+    margin-top:.35rem;
+    text-decoration:underline;
+    padding:0;
+  }
+
+  .pay-icon.visa{background:linear-gradient(135deg,#1a1f71,#2b3990);}
+  .pay-icon.mpesa{background:linear-gradient(135deg,#3fae2a,#2d7d1e);}
+  .pay-icon.equity{background:linear-gradient(135deg,#7a1f2b,#a52a3a);}
+  .pay-icon.cash{background:linear-gradient(135deg,#2f6f4f,#1f4d37);}
+  .pay-icon.crypto{background:linear-gradient(135deg,#e8a020,#c98410);}
+
+  /* Contact / QR section */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:520px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-tile{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:1.1rem;
+    background:var(--field-bg);
+    text-align:center;
+  }
+  .contact-tile .num{font-weight:700;font-size:1rem;margin:.3rem 0 .7rem;color:var(--ink);}
+  .contact-tile img{border-radius:8px;margin-top:.7rem;width:110px;height:110px;}
+  .wa-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    background:#25d366;
+    color:#fff;
+    padding:.5rem 1rem;
+    border-radius:20px;
+    text-decoration:none;
+    font-size:.82rem;
+    font-weight:600;
+  }
+  .call-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    background:var(--ink);
+    color:var(--paper);
+    padding:.5rem 1rem;
+    border-radius:20px;
+    text-decoration:none;
+    font-size:.82rem;
+    font-weight:600;
+    margin-left:.4rem;
+  }
+
+  .snippet-box{
+    background:var(--chip-bg);
+    border-radius:10px;
+    padding:.9rem 1rem;
+    font-size:.8rem;
+    font-style:italic;
+    color:var(--muted);
+    margin-top:1.2rem;
+  }
+
+  /* Theme toggle */
+  .theme-toggle{
+    position:fixed;top:1rem;right:1rem;z-index:100;
+    width:42px;height:42px;border-radius:50%;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(5px);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .theme-toggle:hover{transform:scale(1.06);border-color:var(--brass);}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark and light mode">
+  <i class="fas fa-moon" id="themeIcon"></i>
+</button>
+
+<div class="wrap">
+
+  <header class="hero">
+    <h1><i class="fas fa-file-signature"></i> CV & Document Services</h1>
+    <p>Official rates. Tap a service to start your order.</p>
+  </header>
+
+  <div class="policy-banner">
+    <i class="fas fa-triangle-exclamation"></i>
+    <div>
+      <strong>100% upfront payment required</strong>
+      Work begins only after payment is confirmed and your job details are received — no exceptions, regardless of location.
+    </div>
+  </div>
+
+  <div class="currency-bar">
+    <i class="fas fa-money-bill-transfer"></i> Show prices in:
+    <select id="currencySelect">
+      <option value="AED">🇦🇪 AED — UAE Dirham</option>
+      <option value="KES">🇰🇪 KES — Kenyan Shilling</option>
+      <option value="USD">🇺🇸 USD — US Dollar</option>
+      <option value="EUR">🇪🇺 EUR — Euro</option>
+      <option value="GBP">🇬🇧 GBP — British Pound</option>
+      <option value="INR">🇮🇳 INR — Indian Rupee</option>
+      <option value="PHP">🇵🇭 PHP — Philippine Peso</option>
+      <option value="PKR">🇵🇰 PKR — Pakistani Rupee</option>
+      <option value="NGN">🇳🇬 NGN — Nigerian Naira</option>
+    </select>
+  </div>
+
+  <!-- Individual services -->
+  <div class="card">
+    <h2><i class="fas fa-list-check"></i> Individual services</h2>
+    <div id="servicesList"></div>
+  </div>
+
+  <!-- Bundles -->
+  <div class="card">
+    <h2><i class="fas fa-box-open"></i> Discounted value bundles</h2>
+    <div id="bundlesList"></div>
+  </div>
+
+  <!-- Terms -->
+  <div class="card">
+    <h2><i class="fas fa-scale-balanced"></i> Standard terms & order rules</h2>
+    <ul class="terms-list">
+      <li><strong>100% upfront payment:</strong> work commences only after full payment is confirmed. No unpaid drafts or previews.</li>
+      <li><strong>Turnaround:</strong> standard delivery is 24–48 hours after payment and required details are received.</li>
+      <li><strong>Same-day express:</strong> urgent requests within 12 hours carry a 20 AED express surcharge.</li>
+      <li><strong>Info required:</strong> work history, company names, dates, job titles, and certificate photos must be sent via WhatsApp.</li>
+      <li><strong>Revisions:</strong> 1 free minor revision (typos/dates) within 3 days. Extra revisions cost 15 AED.</li>
+    </ul>
+  </div>
+
+  <!-- Payment methods -->
+  <div class="card">
+    <h2><i class="fas fa-wallet"></i> Ways to pay</h2>
+    <div class="pay-grid">
+
+      <div class="pay-tile">
+        <div class="pay-icon visa"><i class="fas fa-credit-card"></i></div>
+        <div class="pay-name">Visa / Mastercard</div>
+        <div class="pay-detail">Payment link coming soon</div>
+        <span class="pay-badge soon">Coming soon</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon mpesa"><i class="fas fa-mobile-screen-button"></i></div>
+        <div class="pay-name">M-Pesa</div>
+        <div class="pay-detail">0758 587 881</div>
+        <button type="button" class="copy-btn" data-copy="0758587881">Copy number</button><br>
+        <span class="pay-badge fee">Charges may apply</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon equity"><i class="fas fa-building-columns"></i></div>
+        <div class="pay-name">Equity Paybill</div>
+        <div class="pay-detail">Business No: 247247<br>Account: 0758587881</div>
+        <button type="button" class="copy-btn" data-copy="0758587881">Copy account</button><br>
+        <span class="pay-badge free">No fees</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon cash"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="pay-name">Cash</div>
+        <div class="pay-detail">Arrange in person via WhatsApp</div>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon crypto"><i class="fas fa-coins"></i></div>
+        <div class="pay-name">Crypto (Binance Pay)</div>
+        <div class="pay-detail">Wallet address coming soon</div>
+        <span class="pay-badge soon">Coming soon</span>
+      </div>
+
+    </div>
+    <div class="snippet-box">
+      <i class="fas fa-circle-info"></i> After sending payment, send your screenshot directly on WhatsApp to confirm your order — no need to upload it here.
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="card">
+    <h2><i class="fas fa-comments"></i> Direct contact & booking</h2>
+    <div class="contact-grid">
+      <div class="contact-tile">
+        <div><i class="fas fa-comment-dots"></i> WhatsApp only</div>
+        <div class="num">+254 758 587 881</div>
+        <a class="wa-btn" href="https://wa.me/254758587881" target="_blank"><i class="fab fa-whatsapp"></i> Chat</a>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/254758587881" alt="QR code to WhatsApp +254 758 587 881">
+      </div>
+      <div class="contact-tile">
+        <div><i class="fas fa-phone"></i> Calls & WhatsApp</div>
+        <div class="num">+971 54 456 4191</div>
+        <a class="wa-btn" href="https://wa.me/971544564191" target="_blank"><i class="fab fa-whatsapp"></i> Chat</a>
+        <a class="call-btn" href="tel:+971544564191"><i class="fas fa-phone"></i> Call</a>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/971544564191" alt="QR code to WhatsApp +971 54 456 4191">
+      </div>
+    </div>
+    <div class="snippet-box">
+      "Hello! I need [Service Name]. I acknowledge the 100% upfront payment policy. Please send your payment details so I can transfer and submit my work info."
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---------- Theme toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+if (localStorage.getItem('cvform-theme') === 'dark'){
+  document.body.classList.add('dark');
+  themeIcon.className = 'fas fa-sun';
+}
+themeToggle.addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark');
+  themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  localStorage.setItem('cvform-theme', isDark ? 'dark' : 'light');
+});
+
+// ---------- Copy to clipboard ----------
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  });
+});
+
+// ---------- Services & bundles data (AED base) ----------
+const services = [
+  { name: "Standard CV (With Photo)", desc: "Clean 1-page CV with photo, formatted for direct site submission & HR reviews.", price: 40 },
+  { name: "ATS & Technical CV", desc: "Formatted for online job portals, with keyword optimization for site/technical roles.", price: 50 },
+  { name: "Express CV Guide (20-min)", desc: "Live 20-minute 1-on-1 session teaching you to build or update your own CV.", price: 40 },
+  { name: "LinkedIn Basic Setup", desc: "New profile creation, photo upload, standard headline, primary job history.", price: 50 },
+  { name: "LinkedIn Full Optimization", desc: "Complete profile overhaul, professional bio, tailored headline, skills, work history.", price: 100 },
+  { name: "Single Certificate Formatting", desc: "Cleanup, alignment, high-resolution layout for 1 trade/safety certificate.", price: 60 },
+  { name: "Certificate Batch (3–5 Certs)", desc: "Layout, combining, and formatting multiple certificates into 1 clean PDF.", price: 150, priceMax: 200 },
+  { name: "Offer Letter / Document Cleanup", desc: "Professional employment offer letter formatting or document cleanup.", price: 40 }
+];
+const bundles = [
+  { name: "Site Job Package", desc: "ATS CV + 1 Certificate Formatting & Cleanup", price: 90, save: 20 },
+  { name: "Full Career Package", desc: "ATS CV + Full LinkedIn Profile + Certificate Formatting", price: 160, save: 40 }
+];
+
+const currencyFlags = { AED:"🇦🇪", KES:"🇰🇪", USD:"🇺🇸", EUR:"🇪🇺", GBP:"🇬🇧", INR:"🇮🇳", PHP:"🇵🇭", PKR:"🇵🇰", NGN:"🇳🇬" };
+let rates = { AED: 1 };
+let currentCurrency = 'AED';
+
+async function loadRates(){
+  try{
+    const res = await fetch('https://api.exchangerate.host/latest?base=AED&symbols=KES,USD,EUR,GBP,INR,PHP,PKR,NGN');
+    const data = await res.json();
+    if (data && data.rates) rates = { AED: 1, ...data.rates };
+  } catch(e){
+    console.warn('Exchange rate fetch failed, showing AED only.', e);
+  }
+}
+
+function formatPrice(aedAmount){
+  if (currentCurrency === 'AED') return `${aedAmount} AED`;
+  const rate = rates[currentCurrency];
+  if (!rate) return `${aedAmount} AED`;
+  const converted = Math.round(aedAmount * rate);
+  return `${currencyFlags[currentCurrency]} ${converted.toLocaleString()} ${currentCurrency}`;
+}
+
+function renderList(container, items, isBundle){
+  container.innerHTML = '';
+  items.forEach(item => {
+    const url = `intake.html?service=${encodeURIComponent(item.name)}&price=${item.price}${item.priceMax ? '-' + item.priceMax : ''}`;
+    const a = document.createElement('a');
+    a.className = 'service-card';
+    a.href = url;
+    const priceLabel = item.priceMax
+      ? `${formatPrice(item.price)} – ${formatPrice(item.priceMax)}`
+      : formatPrice(item.price);
+    a.innerHTML = `
+      <div class="service-info">
+        <h3>${item.name}${isBundle ? `<span class="bundle-badge">Save ${item.save} AED</span>` : ''}</h3>
+        <p>${item.desc}</p>
+      </div>
+      <div class="service-price">
+        <span class="amount">${priceLabel}</span>
+        <span class="native">${item.priceMax ? item.price + '–' + item.priceMax : item.price} AED<i class="fas fa-arrow-right"></i></span>
+      </div>`;
+    container.appendChild(a);
+  });
+}
+
+function renderAll(){
+  renderList(document.getElementById('servicesList'), services, false);
+  renderList(document.getElementById('bundlesList'), bundles, true);
+}
+
+document.getElementById('currencySelect').addEventListener('change', e => {
+  currentCurrency = e.target.value;
+  renderAll();
+});
+
+renderAll();
+loadRates().then(renderAll);
+</script>
+</body>
+</html>
