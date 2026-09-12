@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINETIX — CV & Document Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#12212e;
+    --paper:#f6f3ec;
+    --card:rgba(255, 255, 255, 0.88);
+    --line:rgba(200, 210, 225, 0.6);
+    --brass:#3f7dfa;
+    --brass-dark:#2f63d6;
+    --ok:#2f6f4f;
+    --err:#b3452e;
+    --radius:16px;
+    --field-bg:rgba(253, 252, 250, 0.65);
+    --muted:#5a5f6d;
+    --hint:#8a8f9c;
+    --chip-bg:rgba(228, 238, 255, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.5);
+    --glass-shadow:0 8px 32px 0 rgba(63, 125, 250, 0.12);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.35), rgba(128,249,183,0.28));
+
+    /* KINETIX palette */
+    --sky-1:#64A1FF;   --sky-2:#8BFCFE;
+    --mint-1:#9ABDEB;  --mint-2:#80F9B7;
+    --berry-1:#F095FF; --berry-2:#F64848;
+    --sunset-1:#FC7B7B;--sunset-2:#A6C1FF;
+    --citrus-1:#D278F2;--citrus-2:#FCC989;
+    --grad-sky:linear-gradient(135deg, var(--sky-1), var(--sky-2));
+    --grad-mint:linear-gradient(135deg, var(--mint-1), var(--mint-2));
+    --grad-berry:linear-gradient(135deg, var(--berry-1), var(--berry-2));
+    --grad-sunset:linear-gradient(135deg, var(--sunset-1), var(--sunset-2));
+    --grad-citrus:linear-gradient(135deg, var(--citrus-1), var(--citrus-2));
+  }
+  body.dark{
+    --ink:#eef2f8;
+    --paper:#0e1420;
+    --card:rgba(24, 30, 42, 0.85);
+    --line:rgba(70, 82, 105, 0.6);
+    --brass:#7fb4ff;
+    --brass-dark:#a8cfff;
+    --ok:#6fc79a;
+    --err:#e08265;
+    --field-bg:rgba(18, 23, 33, 0.6);
+    --muted:#a9b2c3;
+    --hint:#77869c;
+    --chip-bg:rgba(38, 47, 66, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.08);
+    --glass-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.22), rgba(128,249,183,0.16));
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    transition:background .4s ease, color .25s ease;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* Scroll-reactive color wash — smooth continuous morph, sits behind everything */
+  .scroll-wash{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    filter:blur(90px);
+    opacity:0.45;
+    transition:background 0.5s ease;
+  }
+  body.dark .scroll-wash{opacity:0.3;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.25rem 5rem;position:relative;z-index:1;}
+
+  header.hero{padding:1.5rem 0 1.5rem;border-bottom:2px solid var(--ink);margin-bottom:1.5rem;text-align:center;}
+  .kinetix-logo{width:72px;height:72px;margin:0 auto .6rem;display:block;animation:logo-breathe 3s ease-in-out infinite;}
+  @keyframes logo-breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  header.hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(2rem,7vw,2.8rem);
+    margin:0 0 .1rem;
+    letter-spacing:0.02em;
+    background:linear-gradient(100deg, var(--sky-1) 0%, var(--mint-2) 20%, var(--berry-1) 40%, var(--sunset-1) 60%, var(--citrus-1) 80%, var(--sky-1) 100%);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:shimmer 5s linear infinite;
+  }
+  header.hero .tagline{
+    font-size:.8rem;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .8rem;
+  }
+  @keyframes shimmer{0%{background-position:300% center;}100%{background-position:-50% center;}}
+  header.hero p{margin:0 auto;color:var(--muted);font-size:.92rem;max-width:52ch;}
+
+  @keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes bounce-soft{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+  .icon-spin{display:inline-block;animation:spin-slow 6s linear infinite;}
+  .icon-bounce{display:inline-block;animation:bounce-soft 2.2s ease-in-out infinite;}
+
+  .card{
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-radius:var(--radius);
+    padding:1.4rem;
+    margin-bottom:1.1rem;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(63,125,250,0.16);}
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-size:1.1rem;
+    font-weight:600;
+    margin:0 0 .9rem;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .card h2 i{color:var(--brass);font-size:1rem;}
+
+  /* Payment policy banner */
+  .policy-banner{
+    background:rgba(200,140,30,0.12);
+    border:1.5px solid var(--brass);
+    border-radius:12px;
+    padding:1rem 1.1rem;
+    margin-bottom:1.5rem;
+    font-size:.85rem;
+    display:flex;
+    gap:.7rem;
+    align-items:flex-start;
+  }
+  .policy-banner i{color:var(--brass-dark);font-size:1.1rem;margin-top:.1rem;}
+  .policy-banner strong{display:block;margin-bottom:.2rem;}
+
+  /* Currency picker */
+  .currency-bar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    margin-bottom:1.5rem;
+    font-size:.85rem;
+    color:var(--muted);
+    flex-wrap:wrap;
+  }
+  .currency-bar select{
+    padding:.45rem .7rem;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--field-bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:.85rem;
+    cursor:pointer;
+  }
+  .currency-bar select:focus{outline:none;border-color:var(--brass);}
+
+  /* Service cards — clickable */
+  .service-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:.9rem 1.1rem;
+    margin-bottom:.7rem;
+    background:var(--field-bg);
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease;
+    text-decoration:none;
+    color:inherit;
+  }
+  .service-card:hover{transform:translateY(-2px);border-color:var(--brass);}
+  .service-card:last-child{margin-bottom:0;}
+  .service-info h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600;}
+  .service-info p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.4;}
+  .service-price{
+    text-align:right;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .service-price .amount{font-size:1.05rem;font-weight:700;color:var(--brass-dark);}
+  .service-price .native{display:block;font-size:.7rem;color:var(--hint);margin-top:.1rem;}
+  .service-price i{margin-left:.4rem;color:var(--hint);}
+
+  .bundle-badge{
+    display:inline-block;
+    background:var(--ok);
+    color:#fff;
+    font-size:.68rem;
+    font-weight:600;
+    padding:.15rem .5rem;
+    border-radius:20px;
+    margin-left:.4rem;
+  }
+
+  /* Terms list */
+  .terms-list{margin:0;padding-left:1.1rem;font-size:.85rem;color:var(--muted);}
+  .terms-list li{margin-bottom:.5rem;}
+  .terms-list strong{color:var(--ink);}
+
+  /* Payment methods */
+  .pay-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:.8rem;
+  }
+  .pay-tile{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:.9rem;
+    background:var(--field-bg);
+    text-align:center;
+    position:relative;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .pay-tile:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,0.08);}
+  .pay-tile .pay-icon{
+    width:44px;height:44px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto .5rem;
+    font-size:1.2rem;
+    color:#fff;
+  }
+  .pay-tile .pay-name{font-weight:600;font-size:.85rem;margin-bottom:.3rem;}
+  .pay-tile .pay-detail{font-size:.72rem;color:var(--muted);word-break:break-all;}
+  .pay-tile .pay-badge{
+    display:inline-block;
+    font-size:.62rem;
+    font-weight:700;
+    padding:.15rem .5rem;
+    border-radius:20px;
+    margin-top:.4rem;
+  }
+  .pay-badge.free{background:rgba(47,111,79,0.15);color:var(--ok);}
+  .pay-badge.fee{background:rgba(179,69,46,0.12);color:var(--err);}
+  .pay-badge.soon{background:rgba(138,128,112,0.15);color:var(--hint);}
+  .copy-btn{
+    background:none;
+    border:none;
+    color:var(--brass-dark);
+    font-size:.7rem;
+    cursor:pointer;
+    margin-top:.35rem;
+    text-decoration:underline;
+    padding:0;
+  }
+
+  .pay-icon.visa{background:var(--grad-sky);}
+  .pay-icon.mpesa{background:var(--grad-mint);}
+  .pay-icon.equity{background:var(--grad-citrus);}
+  .pay-icon.cash{background:linear-gradient(135deg,#7fd9a8,#4fb98a);}
+  .pay-icon.crypto{background:var(--grad-berry);}
+  .pay-icon{animation:pulse-glow 3s ease-in-out infinite;}
+  @keyframes pulse-glow{
+    0%,100%{box-shadow:0 0 0 0 rgba(100,161,255,0.35);}
+    50%{box-shadow:0 0 0 8px rgba(100,161,255,0);}
+  }
+
+  /* Contact / QR section */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:520px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-tile{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:1.1rem;
+    background:var(--field-bg);
+    text-align:center;
+  }
+  .contact-tile .num{font-weight:700;font-size:1rem;margin:.3rem 0 .7rem;color:var(--ink);}
+  .contact-tile img{border-radius:8px;margin-top:.7rem;width:110px;height:110px;}
+  .wa-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    background:#25d366;
+    color:#fff;
+    padding:.5rem 1rem;
+    border-radius:20px;
+    text-decoration:none;
+    font-size:.82rem;
+    font-weight:600;
+  }
+  .call-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+    background:var(--ink);
+    color:var(--paper);
+    padding:.5rem 1rem;
+    border-radius:20px;
+    text-decoration:none;
+    font-size:.82rem;
+    font-weight:600;
+    margin-left:.4rem;
+  }
+
+  .snippet-box{
+    background:var(--chip-bg);
+    border-radius:10px;
+    padding:.9rem 1rem;
+    font-size:.8rem;
+    font-style:italic;
+    color:var(--muted);
+    margin-top:1.2rem;
+  }
+
+  /* Theme toggle */
+  .theme-toggle{
+    position:fixed;top:1rem;right:1rem;z-index:100;
+    width:42px;height:42px;border-radius:50%;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(5px);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .theme-toggle:hover{transform:scale(1.06);border-color:var(--brass);}
+</style>
+</head>
+<body>
+<div class="scroll-wash" id="scrollWash"></div>
+
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark and light mode">
+  <i class="fas fa-moon" id="themeIcon"></i>
+</button>
+
+<div class="wrap">
+
+  <header class="hero">
+    <svg class="kinetix-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KINETIX logo">
+      <defs>
+        <linearGradient id="kGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
+          <stop offset="0%" stop-color="#64A1FF"/>
+          <stop offset="50%" stop-color="#80F9B7"/>
+          <stop offset="100%" stop-color="#64A1FF"/>
+          <animate attributeName="x1" values="-200;200;-200" dur="4s" repeatCount="indefinite"/>
+          <animate attributeName="x2" values="0;400;0" dur="4s" repeatCount="indefinite"/>
+        </linearGradient>
+      </defs>
+      <g stroke="url(#kGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M 55 20 L 55 180"/>
+        <path d="M 55 100 L 155 20"/>
+        <path d="M 55 100 L 155 180"/>
+      </g>
+    </svg>
+    <h1>KINETIX</h1>
+    <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
+    <p>Official rates. Tap a service to start your order.</p>
+  </header>
+
+  <div class="policy-banner">
+    <i class="fas fa-triangle-exclamation"></i>
+    <div>
+      <strong>100% upfront payment required</strong>
+      Work begins only after payment is confirmed and your job details are received — no exceptions, regardless of location.
+    </div>
+  </div>
+
+  <div class="currency-bar">
+    <i class="fas fa-money-bill-transfer icon-spin"></i> Show prices in:
+    <select id="currencySelect">
+      <option value="AED">🇦🇪 AED — UAE Dirham</option>
+      <option value="KES">🇰🇪 KES — Kenyan Shilling</option>
+      <option value="UGX">🇺🇬 UGX — Ugandan Shilling</option>
+      <option value="USD">🇺🇸 USD — US Dollar</option>
+      <option value="EUR">🇪🇺 EUR — Euro</option>
+      <option value="GBP">🇬🇧 GBP — British Pound</option>
+      <option value="INR">🇮🇳 INR — Indian Rupee</option>
+      <option value="PHP">🇵🇭 PHP — Philippine Peso</option>
+      <option value="PKR">🇵🇰 PKR — Pakistani Rupee</option>
+      <option value="NGN">🇳🇬 NGN — Nigerian Naira</option>
+    </select>
+  </div>
+
+  <!-- Individual services -->
+  <div class="card">
+    <h2><i class="fas fa-list-check"></i> Individual services</h2>
+    <div id="servicesList"></div>
+  </div>
+
+  <!-- Bundles -->
+  <div class="card">
+    <h2><i class="fas fa-box-open"></i> Discounted value bundles</h2>
+    <div id="bundlesList"></div>
+  </div>
+
+  <!-- Terms -->
+  <div class="card">
+    <h2><i class="fas fa-scale-balanced"></i> Standard terms & order rules</h2>
+    <ul class="terms-list">
+      <li><strong>100% upfront payment:</strong> work commences only after full payment is confirmed. No unpaid drafts or previews.</li>
+      <li><strong>Turnaround:</strong> standard delivery is 24–48 hours after payment and required details are received.</li>
+      <li><strong>Same-day express:</strong> urgent requests within 12 hours carry a 20 AED express surcharge.</li>
+      <li><strong>Info required:</strong> work history, company names, dates, job titles, and certificate photos must be sent via WhatsApp.</li>
+      <li><strong>Revisions:</strong> 1 free minor revision (typos/dates) within 3 days. Extra revisions cost 15 AED.</li>
+    </ul>
+  </div>
+
+  <!-- Payment methods -->
+  <div class="card">
+    <h2><i class="fas fa-wallet"></i> Ways to pay</h2>
+    <div class="pay-grid">
+
+      <div class="pay-tile">
+        <div class="pay-icon visa"><i class="fas fa-credit-card"></i></div>
+        <div class="pay-name">Visa / Mastercard</div>
+        <div class="pay-detail">Payment link coming soon</div>
+        <span class="pay-badge soon">Coming soon</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon mpesa"><i class="fas fa-mobile-screen-button"></i></div>
+        <div class="pay-name">M-Pesa</div>
+        <div class="pay-detail">0758 587 881</div>
+        <button type="button" class="copy-btn" data-copy="0758587881">Copy number</button><br>
+        <span class="pay-badge fee">Charges may apply</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon equity"><i class="fas fa-building-columns"></i></div>
+        <div class="pay-name">Equity Paybill</div>
+        <div class="pay-detail">Business No: 247247<br>Account: 0758587881</div>
+        <button type="button" class="copy-btn" data-copy="0758587881">Copy account</button><br>
+        <span class="pay-badge free">No fees</span>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon cash"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="pay-name">Cash</div>
+        <div class="pay-detail">Arrange in person via WhatsApp</div>
+      </div>
+
+      <div class="pay-tile">
+        <div class="pay-icon crypto"><i class="fas fa-coins"></i></div>
+        <div class="pay-name">Crypto (Binance Pay)</div>
+        <div class="pay-detail">Wallet address coming soon</div>
+        <span class="pay-badge soon">Coming soon</span>
+      </div>
+
+    </div>
+    <div class="snippet-box">
+      <i class="fas fa-circle-info"></i> After sending payment, send your screenshot directly on WhatsApp to confirm your order — no need to upload it here.
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="card">
+    <h2><i class="fas fa-comments"></i> Direct contact & booking</h2>
+    <div class="contact-grid">
+      <div class="contact-tile">
+        <div><i class="fas fa-comment-dots"></i> WhatsApp only</div>
+        <div class="num">+254 758 587 881</div>
+        <a class="wa-btn" href="https://wa.me/254758587881" target="_blank"><i class="fab fa-whatsapp"></i> Chat</a>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/254758587881" alt="QR code to WhatsApp +254 758 587 881">
+      </div>
+      <div class="contact-tile">
+        <div><i class="fas fa-phone"></i> Calls & WhatsApp</div>
+        <div class="num">+971 54 456 4191</div>
+        <a class="wa-btn" href="https://wa.me/971544564191" target="_blank"><i class="fab fa-whatsapp"></i> Chat</a>
+        <a class="call-btn" href="tel:+971544564191"><i class="fas fa-phone"></i> Call</a>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/971544564191" alt="QR code to WhatsApp +971 54 456 4191">
+      </div>
+    </div>
+    <div class="snippet-box">
+      "Hello! I need [Service Name]. I acknowledge the 100% upfront payment policy. Please send your payment details so I can transfer and submit my work info."
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---------- Scroll-reactive color wash (smooth continuous morph) ----------
+const scrollWash = document.getElementById('scrollWash');
+const washPalette = [
+  ['#64A1FF', '#8BFCFE'], // sky
+  ['#9ABDEB', '#80F9B7'], // mint
+  ['#F095FF', '#F64848'], // berry
+  ['#FC7B7B', '#A6C1FF'], // sunset
+  ['#D278F2', '#FCC989']  // citrus
+];
+function hexToRgb(hex){
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function lerpColor(a, b, t){
+  const c1 = hexToRgb(a), c2 = hexToRgb(b);
+  const r = Math.round(c1[0] + (c2[0]-c1[0])*t);
+  const g = Math.round(c1[1] + (c2[1]-c1[1])*t);
+  const bl = Math.round(c1[2] + (c2[2]-c1[2])*t);
+  return `rgb(${r},${g},${bl})`;
+}
+function updateWash(){
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollableHeight > 0 ? Math.min(Math.max(window.scrollY / scrollableHeight, 0), 1) : 0;
+  const segments = washPalette.length - 1;
+  const pos = progress * segments;
+  const idx = Math.min(Math.floor(pos), segments - 1);
+  const t = pos - idx;
+  const c1 = lerpColor(washPalette[idx][0], washPalette[idx+1][0], t);
+  const c2 = lerpColor(washPalette[idx][1], washPalette[idx+1][1], t);
+  scrollWash.style.background = `radial-gradient(circle at 25% 15%, ${c1}, transparent 55%), radial-gradient(circle at 80% 85%, ${c2}, transparent 55%)`;
+}
+let washTicking = false;
+window.addEventListener('scroll', () => {
+  if (!washTicking){
+    requestAnimationFrame(() => { updateWash(); washTicking = false; });
+    washTicking = true;
+  }
+});
+updateWash();
+
+// ---------- Theme toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+if (localStorage.getItem('cvform-theme') === 'dark'){
+  document.body.classList.add('dark');
+  themeIcon.className = 'fas fa-sun';
+}
+themeToggle.addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark');
+  themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  localStorage.setItem('cvform-theme', isDark ? 'dark' : 'light');
+});
+
+// ---------- Copy to clipboard ----------
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  });
+});
+
+// ---------- Services & bundles data (AED base) ----------
+const services = [
+  { name: "Standard CV (With Photo)", desc: "Clean 1-page CV with photo, formatted for direct site submission & HR reviews.", price: 40 },
+  { name: "ATS & Technical CV", desc: "Formatted for online job portals, with keyword optimization for site/technical roles.", price: 50 },
+  { name: "Express CV Guide (20-min)", desc: "Live 20-minute 1-on-1 session teaching you to build or update your own CV.", price: 40 },
+  { name: "LinkedIn Basic Setup", desc: "New profile creation, photo upload, standard headline, primary job history.", price: 50 },
+  { name: "LinkedIn Full Optimization", desc: "Complete profile overhaul, professional bio, tailored headline, skills, work history.", price: 100 },
+  { name: "Single Certificate Formatting", desc: "Cleanup, alignment, high-resolution layout for 1 trade/safety certificate.", price: 60 },
+  { name: "Certificate Batch (3–5 Certs)", desc: "Layout, combining, and formatting multiple certificates into 1 clean PDF.", price: 150, priceMax: 200 },
+  { name: "Offer Letter / Document Cleanup", desc: "Professional employment offer letter formatting or document cleanup.", price: 40 }
+];
+const bundles = [
+  { name: "Site Job Package", desc: "ATS CV + 1 Certificate Formatting & Cleanup", price: 90, save: 20 },
+  { name: "Full Career Package", desc: "ATS CV + Full LinkedIn Profile + Certificate Formatting", price: 160, save: 40 }
+];
+
+const currencyFlags = { AED:"🇦🇪", KES:"🇰🇪", UGX:"🇺🇬", USD:"🇺🇸", EUR:"🇪🇺", GBP:"🇬🇧", INR:"🇮🇳", PHP:"🇵🇭", PKR:"🇵🇰", NGN:"🇳🇬" };
+let rates = { AED: 1 };
+let currentCurrency = 'AED';
+let ratesLoaded = false;
+
+async function loadRates(){
+  try{
+    const res = await fetch('https://open.er-api.com/v6/latest/AED');
+    const data = await res.json();
+    if (data && data.result === 'success' && data.rates){
+      rates = data.rates;
+      ratesLoaded = true;
+    }
+  } catch(e){
+    console.warn('Exchange rate fetch failed, showing AED only.', e);
+  }
+}
+
+function formatPrice(aedAmount){
+  if (currentCurrency === 'AED') return `${aedAmount} AED`;
+  const rate = rates[currentCurrency];
+  if (!rate){
+    // Rates haven't loaded yet or this currency isn't supported — show AED with a note instead of silently staying wrong
+    return ratesLoaded ? `${aedAmount} AED (rate unavailable)` : `${aedAmount} AED (loading rate…)`;
+  }
+  const converted = Math.round(aedAmount * rate);
+  return `${currencyFlags[currentCurrency]} ${converted.toLocaleString()} ${currentCurrency}`;
+}
+
+function renderList(container, items, isBundle){
+  container.innerHTML = '';
+  items.forEach(item => {
+    const url = `intake.html?service=${encodeURIComponent(item.name)}&price=${item.price}${item.priceMax ? '-' + item.priceMax : ''}`;
+    const a = document.createElement('a');
+    a.className = 'service-card';
+    a.href = url;
+    const priceLabel = item.priceMax
+      ? `${formatPrice(item.price)} – ${formatPrice(item.priceMax)}`
+      : formatPrice(item.price);
+    a.innerHTML = `
+      <div class="service-info">
+        <h3>${item.name}${isBundle ? `<span class="bundle-badge">Save ${item.save} AED</span>` : ''}</h3>
+        <p>${item.desc}</p>
+      </div>
+      <div class="service-price">
+        <span class="amount">${priceLabel}</span>
+        <span class="native">${item.priceMax ? item.price + '–' + item.priceMax : item.price} AED<i class="fas fa-arrow-right"></i></span>
+      </div>`;
+    container.appendChild(a);
+  });
+}
+
+function renderAll(){
+  renderList(document.getElementById('servicesList'), services, false);
+  renderList(document.getElementById('bundlesList'), bundles, true);
+}
+
+document.getElementById('currencySelect').addEventListener('change', e => {
+  currentCurrency = e.target.value;
+  renderAll();
+});
+
+renderAll();
+loadRates().then(renderAll);
+</script>
+</body>
+</html>
