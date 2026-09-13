@@ -266,7 +266,7 @@
     height:68px;
     margin-bottom:.5rem;
   }
-  .gooey-wrapper.animating{filter:url(#gooey-filter);}
+  .gooey-wrapper.loading, .gooey-wrapper.success{filter:drop-shadow(0 0 10px rgba(100,161,255,0.5));}
   .gooey-submit{
     position:absolute;
     left:50%;
@@ -903,6 +903,10 @@
         <input type="text" id="location" name="location">
       </div>
       <div class="field">
+        <label for="nationality">Nationality</label>
+        <input type="text" id="nationality" name="nationality" placeholder="e.g. Kenyan, Indian, Filipino, Pakistani">
+      </div>
+      <div class="field">
         <label for="linkedin">LinkedIn URL <span class="hint">(optional)</span></label>
         <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
       </div>
@@ -1037,7 +1041,7 @@
     <div class="card">
       <h2><i class="fas fa-tools"></i> Skills</h2>
       <div class="field" id="skillsField">
-        <label for="skillInput">Key skills <span class="hint">(type one, press Enter — add as many as you like)</span></label>
+        <label for="skillInput">Key skills <span class="hint">(optional — leave blank and we'll add relevant skills for your role)</span></label>
         <div class="skills-box" id="skillsBox">
           <input type="text" id="skillInput" placeholder="e.g. Risk Assessment">
           <button type="button" class="skill-add-btn" id="skillAddBtn" aria-label="Add skill"><i class="fas fa-plus"></i></button>
@@ -1048,7 +1052,7 @@
           <div class="suggestion-chips" id="suggestionChips"></div>
         </div>
         <div class="error-msg">Add at least one skill.</div>
-        <input type="hidden" id="skills" name="skills" required>
+        <input type="hidden" id="skills" name="skills">
       </div>
     </div>
 
@@ -1088,15 +1092,6 @@
         <svg viewBox="0 0 64.5 37.4"><polyline class="gooey-check" points="5,13 21.8,32.4 59.5,5"/></svg>
       </div>
     </div>
-    <svg width="0" height="0" style="position:absolute;">
-      <defs>
-        <filter id="gooey-filter">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
-          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"/>
-          <feBlend in="SourceGraphic" in2="goo"/>
-        </filter>
-      </defs>
-    </svg>
     <div class="status" id="statusBox"></div>
   </form>
 
@@ -1277,6 +1272,150 @@ templateOptions.forEach(opt => {
   }
 })();
 
+const responsibilitySuggestions = {
+  "HSE Officer": [
+    "Conducted daily site safety inspections and toolbox talks",
+    "Investigated incidents and near-misses, recommending corrective actions",
+    "Issued and monitored permits to work across active work sites",
+    "Delivered HSE inductions and toolbox talks to site personnel",
+    "Maintained HSE records, statistics, and audit documentation",
+    "Ensured compliance with client and regulatory HSE standards"
+  ],
+  "HSE Engineer": [
+    "Conducted risk assessments and HAZOP studies for site operations",
+    "Led incident investigations and root cause analysis",
+    "Reviewed and updated site HSE management plans and procedures",
+    "Coordinated emergency response drills and evacuation exercises",
+    "Monitored contractor compliance with HSE requirements"
+  ],
+  "Document Controller": [
+    "Managed document control processes using Aconex/SharePoint",
+    "Maintained version control and distribution logs for project documents",
+    "Coordinated document review and approval workflows with stakeholders",
+    "Ensured document numbering and filing complied with project standards",
+    "Prepared document status reports for project management"
+  ],
+  "Electrical Technician": [
+    "Performed installation, termination, and testing of electrical cabling",
+    "Carried out preventive and corrective maintenance on electrical systems",
+    "Diagnosed and resolved electrical faults to minimize downtime",
+    "Applied lockout/tagout procedures to ensure safe working conditions",
+    "Read and interpreted electrical drawings and schematics"
+  ],
+  "Job Performer / Supervisor": [
+    "Supervised work crews to ensure tasks were completed safely and on schedule",
+    "Issued and closed out permits to work in line with site procedures",
+    "Conducted toolbox talks and briefed teams on daily work scope",
+    "Coordinated with other trades to avoid work conflicts",
+    "Reported progress and issues to site management"
+  ],
+  "Civil Engineer": [
+    "Supervised civil construction activities to ensure quality and schedule compliance",
+    "Reviewed drawings and coordinated with design teams on technical queries",
+    "Conducted site inspections and quality checks against specifications",
+    "Prepared quantity take-offs and progress reports",
+    "Coordinated with subcontractors and suppliers on site activities"
+  ],
+  "QA/QC Inspector": [
+    "Conducted inspections and testing in line with project quality plans",
+    "Prepared inspection test plans (ITPs) and non-conformance reports",
+    "Verified materials and workmanship against project specifications",
+    "Coordinated third-party inspections and witnessed tests",
+    "Maintained quality records and documentation for audits"
+  ],
+  "Site Supervisor": [
+    "Supervised daily site activities to ensure safety, quality, and schedule targets",
+    "Coordinated manpower and resources across work fronts",
+    "Liaised with clients and subcontractors on site progress",
+    "Conducted toolbox talks and enforced site safety procedures",
+    "Reported daily progress and issues to project management"
+  ],
+  "Admin Assistant": [
+    "Managed scheduling, correspondence, and office documentation",
+    "Maintained accurate records and filing systems",
+    "Coordinated meetings and prepared minutes and reports",
+    "Handled data entry and document processing using MS Office",
+    "Assisted with procurement and inventory tracking"
+  ],
+  "Driver": [
+    "Operated company vehicles safely in compliance with traffic regulations",
+    "Conducted pre-trip and post-trip vehicle inspections",
+    "Maintained accurate trip logs and delivery records",
+    "Ensured timely and safe delivery of goods/passengers",
+    "Reported vehicle maintenance needs promptly"
+  ],
+  "Nurse": [
+    "Provided direct patient care and monitored vital signs",
+    "Administered medications and treatments as prescribed",
+    "Maintained accurate clinical documentation and patient records",
+    "Assisted physicians during examinations and procedures",
+    "Educated patients and families on care plans and follow-up"
+  ],
+  "Front Office": [
+    "Managed guest check-in/check-out and reservation processes",
+    "Handled guest inquiries and resolved complaints professionally",
+    "Coordinated with housekeeping and other departments on guest needs",
+    "Processed payments and maintained accurate cash handling records",
+    "Maintained front desk records and daily reports"
+  ],
+  "Warehouse Supervisor": [
+    "Supervised warehouse operations including receiving, storage, and dispatch",
+    "Maintained inventory accuracy through regular stock counts",
+    "Coordinated with logistics teams on shipment schedules",
+    "Enforced safety procedures for warehouse and forklift operations",
+    "Trained and supervised warehouse staff"
+  ],
+  "Production Operator": [
+    "Operated and monitored production equipment to meet output targets",
+    "Conducted routine quality checks during production runs",
+    "Followed safety and operating procedures at all times",
+    "Reported equipment malfunctions and production issues promptly",
+    "Maintained accurate production logs and records"
+  ],
+  "Mechanical Technician": [
+    "Performed preventive and corrective maintenance on mechanical equipment",
+    "Diagnosed mechanical faults and carried out repairs",
+    "Conducted alignment, balancing, and vibration checks on rotating equipment",
+    "Maintained maintenance records and spare parts inventory",
+    "Followed permit to work and safety procedures during maintenance activities"
+  ],
+  "Instrumentation Technician": [
+    "Calibrated and maintained instrumentation and control systems",
+    "Performed loop checks and troubleshooting on control loops",
+    "Read and interpreted P&IDs and instrument datasheets",
+    "Coordinated with process teams on instrumentation issues",
+    "Maintained calibration records and certificates"
+  ],
+  "MEP Engineer": [
+    "Coordinated MEP design and installation activities on site",
+    "Reviewed shop drawings and resolved technical clashes",
+    "Supervised MEP subcontractors to ensure quality and schedule compliance",
+    "Conducted site inspections of MEP installations",
+    "Liaised with consultants on MEP technical submittals"
+  ],
+  "Project Engineer": [
+    "Coordinated project activities across engineering, procurement, and construction",
+    "Monitored project schedule and reported progress to management",
+    "Reviewed technical submittals and resolved site queries",
+    "Coordinated with subcontractors and suppliers on deliverables",
+    "Prepared project documentation and progress reports"
+  ],
+  "Planning Engineer": [
+    "Developed and maintained project schedules using Primavera P6/MS Project",
+    "Monitored project progress and identified schedule risks",
+    "Prepared progress reports and schedule updates for stakeholders",
+    "Coordinated with site teams to track actual vs planned progress",
+    "Analyzed schedule delays and proposed recovery plans"
+  ]
+};
+const genericResponsibilities = [
+  "Carried out daily tasks in line with company procedures and standards",
+  "Coordinated with team members and supervisors to meet deadlines",
+  "Maintained accurate records and documentation of work performed",
+  "Ensured compliance with safety and quality requirements",
+  "Communicated progress and issues to management promptly"
+];
+
 const jobCategories = {
   "Oil & Gas": {
     "Downstream / Petrochemical": ["HSE Officer", "HSE Engineer", "Process Engineer", "Electrical Technician", "Instrumentation Technician", "Mechanical Technician", "Document Controller", "Job Performer / Supervisor", "Piping Engineer", "Civil Engineer"],
@@ -1448,6 +1587,37 @@ function refreshSuggestions(){
     suggestionChips.appendChild(chip);
   });
   suggestionsWrap.style.display = 'block';
+  refreshAllJobSuggestions();
+}
+
+// ---------- Suggested responsibilities per job entry, based on the chosen target role ----------
+function refreshAllJobSuggestions(){
+  const roleKey = roleSelect.value && roleSelect.value !== 'Other' ? roleSelect.value : null;
+  const list = (roleKey && responsibilitySuggestions[roleKey]) ? responsibilitySuggestions[roleKey] : genericResponsibilities;
+  document.querySelectorAll('.job-suggestions-wrap').forEach(wrap => {
+    const entry = wrap.closest('.entry');
+    const textarea = entry.querySelector('.job-desc');
+    const chipsBox = wrap.querySelector('.job-suggestion-chips');
+    chipsBox.innerHTML = '';
+    list.forEach(line => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'suggestion-chip';
+      chip.innerHTML = `<i class="fas fa-plus"></i> ${escapeHTML(line)}`;
+      const alreadyAdded = textarea.value.split(/\r?\n/).map(l => l.trim()).includes(line);
+      if (alreadyAdded) chip.classList.add('added');
+      chip.addEventListener('click', () => {
+        const currentLines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (!currentLines.includes(line)){
+          textarea.value = currentLines.concat(line).join('\n');
+          updateBulletCount(textarea);
+          refreshAllJobSuggestions();
+        }
+      });
+      chipsBox.appendChild(chip);
+    });
+    wrap.style.display = 'block';
+  });
 }
 
 // ---------- Scroll-reactive color wash (smooth continuous morph) ----------
@@ -1524,12 +1694,10 @@ function renderSkills(){
     skillsBox.insertBefore(chip, skillInput);
   });
   skillsHidden.value = skills.join(', ');
-  const skillsNeeded = 10;
-  const skillsShort = Math.max(0, skillsNeeded - skills.length);
-  skillsCount.textContent = skillsShort > 0
-    ? `${skills.length} skill${skills.length === 1 ? '' : 's'} added — add ${skillsShort} more for a strong CV (aim for ${skillsNeeded}+)`
-    : `${skills.length} skills added ✓ nice and thorough`;
-  skillsCount.style.color = skillsShort > 0 ? 'var(--err)' : 'var(--ok)';
+  skillsCount.textContent = skills.length
+    ? `${skills.length} skill${skills.length === 1 ? '' : 's'} added — feel free to leave the rest to us`
+    : `No skills added — that's okay, we'll add relevant ones for your role`;
+  skillsCount.style.color = 'var(--hint)';
   document.getElementById('skillsField').classList.toggle('has-error', false);
 }
 
@@ -1602,9 +1770,13 @@ function jobEntryHTML(n){
         </div>
       </div>
       <div class="field">
-        <label>Key responsibilities & achievements <span class="hint">(one bullet point per line — aim for 6–9)</span></label>
+        <label>Key responsibilities & achievements <span class="hint">(optional — jot down a few if you can, we'll write the rest based on your role)</span></label>
         <textarea name="description_${n}" class="job-desc" oninput="updateBulletCount(this)"></textarea>
-        <div class="bullet-count" style="font-size:.75rem;color:var(--hint);margin-top:.3rem;">0 lines added — aim for 6-9</div>
+        <div class="bullet-count" style="font-size:.75rem;color:var(--hint);margin-top:.3rem;">No details added — that's fine, we'll fill this in for you</div>
+        <div class="job-suggestions-wrap" data-job-suggestions="${n}" style="display:none;margin-top:.6rem;">
+          <div class="suggestions-label"><i class="fas fa-lightbulb icon-bounce"></i> Common tasks for this role — tap to add</div>
+          <div class="suggestion-chips job-suggestion-chips"></div>
+        </div>
       </div>
     </div>`;
 }
@@ -1614,13 +1786,27 @@ function eduEntryHTML(n){
     <div class="entry" data-edu="${n}">
       <span class="entry-num">Item ${n}</span>
       ${n > 1 ? `<button type="button" class="remove-entry" aria-label="Remove"><i class="fas fa-times"></i></button>` : ''}
+      <div class="field">
+        <label>Education level</label>
+        <select name="eduLevel_${n}">
+          <option value="" disabled selected>Select a level</option>
+          <option value="High School">High School</option>
+          <option value="Certificate">Certificate</option>
+          <option value="Diploma">Diploma</option>
+          <option value="Bachelor's Degree">Bachelor's Degree</option>
+          <option value="Master's Degree">Master's Degree</option>
+          <option value="Doctorate / PhD">Doctorate / PhD</option>
+          <option value="Professional Certification">Professional Certification (e.g. NEBOSH, PMP)</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
       <div class="row">
         <div class="field">
-          <label>Qualification</label>
+          <label>Qualification title <span class="hint">(e.g. Bachelor of Science in Civil Engineering)</span></label>
           <input type="text" name="degree_${n}">
         </div>
         <div class="field">
-          <label>Institution</label>
+          <label>Institution <span class="hint">(exact name if you know it)</span></label>
           <input type="text" name="school_${n}">
         </div>
       </div>
@@ -1645,6 +1831,7 @@ function addJob(){
   jobCount++;
   document.getElementById('jobsContainer').insertAdjacentHTML('beforeend', jobEntryHTML(jobCount));
   refreshJobUI();
+  refreshAllJobSuggestions();
 }
 
 function addEdu(){
@@ -1680,7 +1867,7 @@ function renumber(containerId, attr, label){
     const n = i + 1;
     entry.setAttribute(`data-${attr}`, n);
     entry.querySelector('.entry-num').textContent = `${label} ${n}`;
-    entry.querySelectorAll('input, textarea').forEach(field => {
+    entry.querySelectorAll('input, textarea, select').forEach(field => {
       field.name = field.name.replace(/_\d+$/, `_${n}`);
     });
   });
@@ -1696,18 +1883,12 @@ addEdu();
 function updateBulletCount(textarea){
   const lines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const counter = textarea.closest('.field').querySelector('.bullet-count');
-  const needed = 6;
-  const short = Math.max(0, needed - lines.length);
   if (!textarea.value.trim()){
-    counter.textContent = '0 lines added — aim for 6-9';
-    counter.style.color = 'var(--hint)';
-  } else if (short > 0){
-    counter.textContent = `${lines.length} line${lines.length === 1 ? '' : 's'} — add ${short} more (aim for 6-9)`;
-    counter.style.color = 'var(--err)';
+    counter.textContent = "No details added — that's fine, we'll fill this in for you";
   } else {
-    counter.textContent = `${lines.length} lines ✓ solid detail`;
-    counter.style.color = 'var(--ok)';
+    counter.textContent = `${lines.length} line${lines.length === 1 ? '' : 's'} added — thanks, this helps us tailor it`;
   }
+  counter.style.color = 'var(--hint)';
 }
 
 function validateField(field){
@@ -1715,25 +1896,6 @@ function validateField(field){
   const valid = field.checkValidity();
   if (wrap) wrap.classList.toggle('has-error', !valid);
   return valid;
-}
-
-function validateCVQuality(){
-  const issues = [];
-  if (skills.length < 10){
-    issues.push(`Add at least 10 skills (currently ${skills.length}).`);
-  }
-  document.querySelectorAll('#jobsContainer .entry').forEach(entry => {
-    const titleField = entry.querySelector('input[name^="jobTitle_"]');
-    const descField = entry.querySelector('textarea[name^="description_"]');
-    if (titleField && titleField.value.trim() && descField){
-      const lines = descField.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      if (lines.length < 6){
-        const jobLabel = titleField.value.trim() || 'a job entry';
-        issues.push(`Add at least 6 bullet points for "${jobLabel}" (currently ${lines.length}).`);
-      }
-    }
-  });
-  return issues;
 }
 
 function validateForm(){
@@ -1874,14 +2036,6 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
     return;
   }
 
-  const qualityIssues = validateCVQuality();
-  if (qualityIssues.length){
-    statusBox.className = 'status err';
-    statusBox.innerHTML = '<strong>For the strongest CV, please fix:</strong><br>' + qualityIssues.map(i => '• ' + i).join('<br>');
-    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-
   if (SCRIPT_URL.includes('PASTE_YOUR')){
     statusBox.className = 'status err';
     statusBox.textContent = 'Form isn\'t connected yet — add your Apps Script Web App URL in the SCRIPT_URL constant.';
@@ -1894,7 +2048,7 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
 
   btn.disabled = true;
   gooeyWrapper.classList.remove('success', 'error');
-  gooeyWrapper.classList.add('animating', 'loading');
+  gooeyWrapper.classList.add('loading');
 
   try{
     // Collect all text/date fields
@@ -1924,7 +2078,6 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
 
     gooeyWrapper.classList.remove('loading');
     gooeyWrapper.classList.add('success');
-    setTimeout(() => gooeyWrapper.classList.remove('animating'), 700);
 
     statusBox.className = 'status ok';
     statusBox.textContent = "Thank you for submitting your request! We're working on it and will get back to you with feedback as soon as your CV is ready. Check your email for a confirmation too.";
@@ -1953,7 +2106,6 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
   } catch(err){
     gooeyWrapper.classList.remove('loading');
     gooeyWrapper.classList.add('error');
-    gooeyWrapper.classList.remove('animating');
     setTimeout(() => gooeyWrapper.classList.remove('error'), 1500);
 
     statusBox.className = 'status err';
