@@ -77,7 +77,7 @@
     transition:background 0.5s ease;
   }
   body.dark .scroll-wash{opacity:0.3;}
-  .wrap{max-width:680px;margin:0 auto;padding:2.5rem 1.25rem 5rem;position:relative;z-index:1;}
+  .wrap{max-width:680px;margin:0 auto;padding:4.5rem 1.25rem 5rem;position:relative;z-index:1;}
   header.hero{
     padding:1rem 0 2rem;
     border-bottom:2px solid var(--ink);
@@ -199,33 +199,158 @@
   .add-btn:disabled{opacity:.45;cursor:not-allowed;}
   .cap-note{font-size:.75rem;color:var(--hint);margin-top:.4rem;text-align:center;}
 
-  .submit-btn{
-    width:100%;
-    padding:1rem;
-    background:var(--ink);
-    color:var(--paper);
-    border:none;
-    border-radius:8px;
-    font-size:1rem;
-    font-weight:600;
+  /* CV template picker */
+  .template-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.7rem;
+  }
+  .template-option{
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:.7rem;
     cursor:pointer;
+    background:var(--field-bg);
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .template-option:hover{transform:translateY(-2px);}
+  .template-option.selected{border-color:var(--brass);box-shadow:0 0 0 3px rgba(63,125,250,0.15);}
+  .template-name{font-size:.78rem;font-weight:700;margin-top:.5rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+  .template-desc{font-size:.68rem;color:var(--hint);margin-top:.15rem;line-height:1.3;}
+  .ats-tag{
+    background:var(--ok);color:#fff;font-size:.58rem;font-weight:700;
+    padding:.1rem .4rem;border-radius:10px;
+  }
+  .template-preview{
+    height:64px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid var(--line);
+    padding:.4rem .5rem;
     display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:.6rem;
-    transition:background .15s ease;
+    flex-direction:column;
+    gap:.25rem;
+    position:relative;
+    overflow:hidden;
   }
-  .submit-btn:hover:not(:disabled){background:#0a1620;}
-  .submit-btn:disabled{opacity:.6;cursor:not-allowed;}
-  .spinner{
-    width:16px;height:16px;
-    border:2px solid rgba(246,243,236,.35);
-    border-top-color:var(--paper);
+  .template-preview span{display:block;height:4px;border-radius:2px;background:#c9ced8;width:100%;}
+  .template-preview span.short{width:55%;}
+  .template-preview span.thin{height:2px;background:#dde1e8;}
+
+  .preview-ats-classic span{background:#9aa4b5;}
+  .preview-ats-classic span:first-child{width:70%;margin:0 auto;background:#5a6478;height:6px;}
+
+  .preview-ats-minimal span{background:#9aa4b5;}
+  .preview-ats-minimal span:first-child{width:60%;background:#333;height:6px;}
+
+  .preview-navy-sidebar{flex-direction:row;padding:0;gap:0;}
+  .preview-navy-sidebar .bar{width:30%;background:#12212e;height:100%;flex-shrink:0;}
+  .preview-navy-sidebar .lines{flex:1;padding:.4rem .5rem;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-navy-sidebar .lines span{background:#8bb4ff;}
+
+  .preview-bold-header{padding:0;}
+  .preview-bold-header .band{height:22px;background:linear-gradient(90deg,var(--sky-1),var(--mint-2));}
+  .preview-bold-header span{margin:.3rem .5rem 0;background:#9aa4b5;}
+
+  .preview-minimalist span{background:#c9ced8;}
+  .preview-minimalist span.thin{background:#e4e7ec;}
+
+  .preview-two-column{flex-direction:row;gap:.4rem;}
+  .preview-two-column .col{flex:1;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-two-column .col span{background:#9aa4b5;}
+
+  /* Gooey submit button */
+  .gooey-wrapper{
+    position:relative;
+    width:100%;
+    height:68px;
+    margin-bottom:.5rem;
+  }
+  .gooey-wrapper.animating{filter:url(#gooey-filter);}
+  .gooey-submit{
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+    width:100%;
+    height:60px;
+    padding:0;
+    background:linear-gradient(135deg, var(--sky-1), var(--mint-2));
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    z-index:3;
+    transition:width .5s cubic-bezier(.65,0,.35,1), border-radius .5s ease, background .4s ease, color .3s ease;
+  }
+  .gooey-submit:disabled{cursor:not-allowed;}
+  .gooey-wrapper.loading .gooey-submit,
+  .gooey-wrapper.success .gooey-submit{
+    width:60px;
+    color:rgba(255,255,255,0);
+  }
+  .gooey-wrapper.success .gooey-submit{background:linear-gradient(135deg, var(--ok), #4fb98a);}
+  .gooey-wrapper.error .gooey-submit{background:linear-gradient(135deg, var(--err), #d9634a);}
+
+  .gooey-loader-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:2;
+    opacity:0;
+    pointer-events:none;
+  }
+  .gooey-wrapper.loading .gooey-loader-wrap{opacity:1;}
+  .gooey-dot{
+    position:absolute;
+    top:50%;left:50%;
+    width:60px;height:60px;
+    margin:-30px 0 0 -30px;
     border-radius:50%;
-    animation:spin .7s linear infinite;
-    display:none;
   }
-  @keyframes spin{to{transform:rotate(360deg);}}
+  .dot-sky{background:var(--sky-1);}
+  .dot-mint{background:var(--mint-2);}
+  .dot-berry{background:var(--berry-1);}
+  .gooey-wrapper.loading .dot-sky{animation:orbit-a 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-mint{animation:orbit-b 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-berry{animation:orbit-c 1.6s linear infinite;}
+  @keyframes orbit-a{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(38px,0);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+  @keyframes orbit-b{
+    0%{transform:scale(.35) translate(0,0) rotate(0deg);}
+    50%{transform:scale(.35) translate(-26px,-26px) rotate(0deg);}
+    100%{transform:scale(.35) translate(0,0) rotate(0deg);}
+  }
+  @keyframes orbit-c{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(-26px,26px);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+
+  .gooey-check-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:4;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;
+  }
+  .gooey-wrapper.success .gooey-check-wrap{opacity:1;}
+  .gooey-check-wrap svg{width:32px;height:20px;}
+  .gooey-check{
+    fill:none;
+    stroke:#fff;
+    stroke-width:10;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:1000;
+    stroke-dashoffset:1000;
+  }
+  .gooey-wrapper.success .gooey-check{animation:draw-check .6s .1s ease forwards;}
+  @keyframes draw-check{to{stroke-dashoffset:0;}}
 
   .status{
     margin-top:1rem;
@@ -245,25 +370,61 @@
   body.dark .status.err{background:#3a2118;border-color:#5c3627;}
 
   /* Theme toggle */
-  .theme-toggle{
-    position:fixed;
-    top:1rem;
-    right:1rem;
-    z-index:100;
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    border:1.5px solid var(--line);
-    background:var(--card);
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:1rem;
-    transition:background .25s ease, border-color .25s ease, transform .15s ease;
+  /* KINETIX glass liquid nav bar */
+  .kinetix-nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:center;
+    padding:.7rem .6rem;
+    pointer-events:none;
   }
-  .theme-toggle:hover{transform:scale(1.06);border-color:var(--brass);}
+  .nav-inner{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:.3rem;
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:50px;
+    padding:.35rem .5rem .35rem .8rem;
+    max-width:100%;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .nav-inner::-webkit-scrollbar{display:none;}
+  .nav-logo-mini{display:flex;flex-shrink:0;}
+  .nav-logo-mini svg{width:26px;height:26px;display:block;}
+  .nav-links{position:relative;display:flex;gap:.15rem;margin:0 .25rem;flex-shrink:0;}
+  .nav-link{
+    position:relative;z-index:2;
+    padding:.45rem .75rem;
+    border-radius:30px;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--muted);
+    text-decoration:none;
+    white-space:nowrap;
+    transition:color .3s ease;
+  }
+  .nav-link.active, .nav-link:hover{color:#fff;}
+  .nav-liquid{
+    position:absolute;top:0;left:0;height:100%;
+    background:var(--grad-sky);
+    border-radius:30px;
+    z-index:1;
+    opacity:0;
+    transition:left .45s cubic-bezier(.65,0,.35,1), width .45s cubic-bezier(.65,0,.35,1), border-radius .3s ease, opacity .2s ease;
+  }
+  .nav-theme-btn{
+    width:32px;height:32px;border-radius:50%;
+    border:none;
+    background:var(--field-bg);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;font-size:.9rem;
+    transition:transform .15s ease;
+  }
+  .nav-theme-btn:hover{transform:scale(1.08);}
 
   /* Skills — infinite tag input */
   .skills-box{
@@ -510,6 +671,36 @@
   .file-thumb .remove-file:hover{background:var(--err);}
   .file-count{font-size:.78rem;color:var(--hint);margin-top:.5rem;text-align:center;}
 
+  .file-order-badge{
+    position:absolute;
+    top:.3rem;left:.3rem;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--grad-sky);
+    color:#fff;
+    font-size:.62rem;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    z-index:2;
+  }
+  .file-reorder-bar{
+    position:absolute;
+    bottom:1.4rem;left:0;right:0;
+    display:flex;justify-content:center;gap:.3rem;
+    z-index:2;
+  }
+  .file-reorder-bar button{
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-size:.6rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .file-reorder-bar button:hover{background:var(--brass);}
+
   /* Pricing card */
   .pricing-card{
     background:linear-gradient(135deg, var(--card), rgba(255,255,255,0.1));
@@ -621,9 +812,28 @@
 </head>
 <body>
 <div class="scroll-wash" id="scrollWash"></div>
-<button type="button" class="theme-toggle" id="themeToggle" title="Toggle dark / light mode" aria-label="Toggle dark and light mode">
-  <i class="fas fa-moon" id="themeIcon"></i>
-</button>
+
+<nav class="kinetix-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#3f7dfa" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
+        </g>
+      </svg>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link" data-page="index">Rates</a>
+      <a href="intake.html" class="nav-link" data-page="intake">Submit</a>
+      <a href="https://wa.me/971544564191" target="_blank" class="nav-link" data-page="contact">Contact</a>
+      <span class="nav-liquid" id="navLiquid"></span>
+    </div>
+    <button type="button" class="nav-theme-btn" id="themeToggle" aria-label="Toggle dark and light mode">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+</nav>
+
 <a href="https://wa.me/971544564191" class="whatsapp-float" target="_blank" aria-label="Contact us on WhatsApp">
   <i class="fab fa-whatsapp"></i>
 </a>
@@ -665,6 +875,8 @@
   <form id="cvForm" novalidate>
     <input type="hidden" id="selectedService" name="selectedService">
     <input type="hidden" id="selectedPrice" name="selectedPrice">
+    <input type="hidden" id="isRush" name="isRush">
+    <input type="hidden" id="rushFee" name="rushFee">
 
     <!-- Personal Info -->
     <div class="card">
@@ -720,6 +932,57 @@
       <div class="field">
         <label for="noticePeriod">Notice period / availability <span class="hint">(optional)</span></label>
         <input type="text" id="noticePeriod" name="noticePeriod" placeholder="e.g. Immediate, 30 days, 1 month">
+      </div>
+    </div>
+
+    <!-- CV Style -->
+    <div class="card">
+      <h2><i class="fas fa-palette"></i> Choose your CV style</h2>
+      <p style="font-size:.82rem;color:var(--muted);margin:0 0 .9rem;">"ATS-Safe" styles are built for online job portals and automated scanners. The others are for sending directly to a human — recruiter, hiring manager, WhatsApp, email.</p>
+      <div class="template-grid" id="templateGrid">
+        <div class="template-option" data-template="ats-classic">
+          <div class="template-preview preview-ats-classic"><span></span><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">ATS Classic <span class="ats-tag">ATS-Safe</span></div>
+          <div class="template-desc">Clean single column, centered header.</div>
+        </div>
+        <div class="template-option" data-template="ats-minimal">
+          <div class="template-preview preview-ats-minimal"><span></span><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">ATS Minimal <span class="ats-tag">ATS-Safe</span></div>
+          <div class="template-desc">Left-aligned, monochrome, zero risk.</div>
+        </div>
+        <div class="template-option" data-template="navy-sidebar">
+          <div class="template-preview preview-navy-sidebar"><div class="bar"></div><div class="lines"><span></span><span></span><span class="short"></span></div></div>
+          <div class="template-name">Navy Sidebar</div>
+          <div class="template-desc">Bold navy column for contact & skills.</div>
+        </div>
+        <div class="template-option" data-template="bold-header">
+          <div class="template-preview preview-bold-header"><div class="band"></div><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">Bold Header</div>
+          <div class="template-desc">Full-width color band up top.</div>
+        </div>
+        <div class="template-option" data-template="minimalist-elegant">
+          <div class="template-preview preview-minimalist"><span class="thin"></span><span></span><span class="short"></span><span class="thin"></span></div>
+          <div class="template-name">Minimalist Elegant</div>
+          <div class="template-desc">Airy whitespace, refined dividers.</div>
+        </div>
+        <div class="template-option" data-template="two-column">
+          <div class="template-preview preview-two-column"><div class="col"><span></span><span></span></div><div class="col"><span></span><span></span></div></div>
+          <div class="template-name">Two-Column Compact</div>
+          <div class="template-desc">Denser, magazine-style layout.</div>
+        </div>
+      </div>
+      <div class="field" id="templateField" style="margin-top:.5rem;">
+        <input type="hidden" id="cvTemplate" name="cvTemplate" required>
+        <div class="error-msg" id="templateError">Pick a CV style to continue.</div>
+      </div>
+    </div>
+
+    <!-- Application Letter -->
+    <div class="card">
+      <h2><i class="fas fa-envelope-open-text"></i> Application letter</h2>
+      <div class="checkbox-field" style="margin-bottom:0;">
+        <input type="checkbox" id="wantsCoverLetter" name="wantsCoverLetter">
+        <label for="wantsCoverLetter">Also draft a professional application/cover letter to go with my CV — styled to match whichever CV design I picked above.</label>
       </div>
     </div>
 
@@ -812,10 +1075,28 @@
       </label>
     </div>
 
-    <button type="submit" class="submit-btn" id="submitBtn">
-      <span class="spinner" id="spinner"></span>
-      <span id="submitText">Submit my details</span>
-    </button>
+    <div class="gooey-wrapper" id="gooeyWrapper">
+      <button type="submit" class="gooey-submit" id="submitBtn">
+        <span id="submitText">Submit my details</span>
+      </button>
+      <div class="gooey-loader-wrap">
+        <span class="gooey-dot dot-sky"></span>
+        <span class="gooey-dot dot-mint"></span>
+        <span class="gooey-dot dot-berry"></span>
+      </div>
+      <div class="gooey-check-wrap">
+        <svg viewBox="0 0 64.5 37.4"><polyline class="gooey-check" points="5,13 21.8,32.4 59.5,5"/></svg>
+      </div>
+    </div>
+    <svg width="0" height="0" style="position:absolute;">
+      <defs>
+        <filter id="gooey-filter">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"/>
+          <feBlend in="SourceGraphic" in2="goo"/>
+        </filter>
+      </defs>
+    </svg>
     <div class="status" id="statusBox"></div>
   </form>
 
@@ -885,6 +1166,33 @@
 </div>
 
 <script>
+// ---------- Liquid nav indicator ----------
+function initNav(activePage){
+  const links = document.querySelectorAll('.nav-link');
+  const liquid = document.getElementById('navLiquid');
+  let activeEl = null;
+  function moveLiquidTo(el){
+    if (!liquid) return;
+    if (!el){ liquid.style.opacity = 0; return; }
+    liquid.style.opacity = 1;
+    liquid.style.left = el.offsetLeft + 'px';
+    liquid.style.width = el.offsetWidth + 'px';
+  }
+  links.forEach(link => {
+    if (link.dataset.page === activePage){
+      link.classList.add('active');
+      activeEl = link;
+    }
+    link.addEventListener('mouseenter', () => moveLiquidTo(link));
+    link.addEventListener('touchstart', () => moveLiquidTo(link), {passive:true});
+  });
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl) navLinksEl.addEventListener('mouseleave', () => moveLiquidTo(activeEl));
+  requestAnimationFrame(() => moveLiquidTo(activeEl));
+  window.addEventListener('resize', () => moveLiquidTo(document.querySelector('.nav-link.active')));
+}
+initNav('intake');
+
 // ---------- Legal modals ----------
 function openModal(id){
   document.getElementById(id).classList.add('open');
@@ -906,13 +1214,26 @@ document.addEventListener('keydown', e => {
   const params = new URLSearchParams(window.location.search);
   const service = params.get('service');
   const price = params.get('price');
+  const isRush = params.get('rush') === '1';
+  const rushFee = params.get('rushFee');
   if (service){
     document.getElementById('selectedService').value = service;
     document.getElementById('selectedPrice').value = price || '';
     document.getElementById('selectedServiceName').textContent = service;
-    document.getElementById('selectedServicePrice').textContent = price ? `${price} AED` : '';
+    let priceText = price ? `${price} AED` : '';
+    if (isRush && rushFee) priceText += ` (includes +${rushFee} AED urgent fee)`;
+    document.getElementById('selectedServicePrice').textContent = priceText;
     document.getElementById('selectedServiceCard').style.display = 'block';
     document.getElementById('noServiceCard').style.display = 'none';
+    document.getElementById('isRush').value = isRush ? 'Yes' : 'No';
+    document.getElementById('rushFee').value = rushFee || '';
+
+    if (isRush){
+      const rushBadge = document.createElement('span');
+      rushBadge.style.cssText = 'display:inline-block;background:var(--grad-berry);color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;margin-top:.5rem;';
+      rushBadge.innerHTML = '<i class="fas fa-bolt"></i> Urgent request';
+      document.getElementById('selectedServiceCard').appendChild(rushBadge);
+    }
   }
 })();
 
@@ -921,7 +1242,7 @@ document.addEventListener('keydown', e => {
    (Deploy CV_Form_Backend.gs as a Web App, "Execute as: Me",
    "Who has access: Anyone", then paste the /exec URL below.)
    ============================================================ */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCMgsg6QGNKcrdCfjCMGt1N_6bFsC7mTl0IQe9Hzolw0OqfkNcCG3P0dfcBR8H--Gx5g/exec";
+const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 const MAX_JOBS = 6; // matches backend MAX_JOBS cap — keep in sync
 
 let jobCount = 0;
@@ -935,6 +1256,27 @@ visaStatus.addEventListener('change', () => {
 });
 
 // ---------- Target role: cascading Industry > Sector > Role ----------
+// ---------- CV template picker ----------
+const templateOptions = document.querySelectorAll('.template-option');
+const cvTemplateHidden = document.getElementById('cvTemplate');
+templateOptions.forEach(opt => {
+  opt.addEventListener('click', () => {
+    templateOptions.forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    cvTemplateHidden.value = opt.dataset.template;
+    document.getElementById('templateField').classList.remove('has-error');
+  });
+});
+// Smart default: if they arrived via an "ATS" service, pre-select ATS Classic
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const svc = (params.get('service') || '').toLowerCase();
+  if (svc.includes('ats')){
+    const atsCard = document.querySelector('.template-option[data-template="ats-classic"]');
+    if (atsCard) atsCard.click();
+  }
+})();
+
 const jobCategories = {
   "Oil & Gas": {
     "Downstream / Petrochemical": ["HSE Officer", "HSE Engineer", "Process Engineer", "Electrical Technician", "Instrumentation Technician", "Mechanical Technician", "Document Controller", "Job Performer / Supervisor", "Piping Engineer", "Civil Engineer"],
@@ -1182,7 +1524,12 @@ function renderSkills(){
     skillsBox.insertBefore(chip, skillInput);
   });
   skillsHidden.value = skills.join(', ');
-  skillsCount.textContent = `${skills.length} skill${skills.length === 1 ? '' : 's'} added`;
+  const skillsNeeded = 10;
+  const skillsShort = Math.max(0, skillsNeeded - skills.length);
+  skillsCount.textContent = skillsShort > 0
+    ? `${skills.length} skill${skills.length === 1 ? '' : 's'} added — add ${skillsShort} more for a strong CV (aim for ${skillsNeeded}+)`
+    : `${skills.length} skills added ✓ nice and thorough`;
+  skillsCount.style.color = skillsShort > 0 ? 'var(--err)' : 'var(--ok)';
   document.getElementById('skillsField').classList.toggle('has-error', false);
 }
 
@@ -1255,8 +1602,9 @@ function jobEntryHTML(n){
         </div>
       </div>
       <div class="field">
-        <label>Key responsibilities & achievements</label>
-        <textarea name="description_${n}"></textarea>
+        <label>Key responsibilities & achievements <span class="hint">(one bullet point per line — aim for 6–9)</span></label>
+        <textarea name="description_${n}" class="job-desc" oninput="updateBulletCount(this)"></textarea>
+        <div class="bullet-count" style="font-size:.75rem;color:var(--hint);margin-top:.3rem;">0 lines added — aim for 6-9</div>
       </div>
     </div>`;
 }
@@ -1345,11 +1693,47 @@ addJob();
 addEdu();
 
 // ---------- Validation ----------
+function updateBulletCount(textarea){
+  const lines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const counter = textarea.closest('.field').querySelector('.bullet-count');
+  const needed = 6;
+  const short = Math.max(0, needed - lines.length);
+  if (!textarea.value.trim()){
+    counter.textContent = '0 lines added — aim for 6-9';
+    counter.style.color = 'var(--hint)';
+  } else if (short > 0){
+    counter.textContent = `${lines.length} line${lines.length === 1 ? '' : 's'} — add ${short} more (aim for 6-9)`;
+    counter.style.color = 'var(--err)';
+  } else {
+    counter.textContent = `${lines.length} lines ✓ solid detail`;
+    counter.style.color = 'var(--ok)';
+  }
+}
+
 function validateField(field){
   const wrap = field.closest('.field, .checkbox-field');
   const valid = field.checkValidity();
   if (wrap) wrap.classList.toggle('has-error', !valid);
   return valid;
+}
+
+function validateCVQuality(){
+  const issues = [];
+  if (skills.length < 10){
+    issues.push(`Add at least 10 skills (currently ${skills.length}).`);
+  }
+  document.querySelectorAll('#jobsContainer .entry').forEach(entry => {
+    const titleField = entry.querySelector('input[name^="jobTitle_"]');
+    const descField = entry.querySelector('textarea[name^="description_"]');
+    if (titleField && titleField.value.trim() && descField){
+      const lines = descField.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length < 6){
+        const jobLabel = titleField.value.trim() || 'a job entry';
+        issues.push(`Add at least 6 bullet points for "${jobLabel}" (currently ${lines.length}).`);
+      }
+    }
+  });
+  return issues;
 }
 
 function validateForm(){
@@ -1405,6 +1789,11 @@ function renderFiles(){
       thumb.innerHTML = `<i class="fas ${fileIconFor(file)} file-icon"></i>`;
     }
 
+    const orderBadge = document.createElement('div');
+    orderBadge.className = 'file-order-badge';
+    orderBadge.textContent = i + 1;
+    thumb.appendChild(orderBadge);
+
     const nameTag = document.createElement('div');
     nameTag.className = 'file-name';
     nameTag.textContent = file.name;
@@ -1420,10 +1809,36 @@ function renderFiles(){
     });
     thumb.appendChild(removeBtn);
 
+    if (uploadedFiles.length > 1){
+      const reorderBar = document.createElement('div');
+      reorderBar.className = 'file-reorder-bar';
+      if (i > 0){
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        upBtn.addEventListener('click', () => {
+          [uploadedFiles[i-1], uploadedFiles[i]] = [uploadedFiles[i], uploadedFiles[i-1]];
+          renderFiles();
+        });
+        reorderBar.appendChild(upBtn);
+      }
+      if (i < uploadedFiles.length - 1){
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+        downBtn.addEventListener('click', () => {
+          [uploadedFiles[i], uploadedFiles[i+1]] = [uploadedFiles[i+1], uploadedFiles[i]];
+          renderFiles();
+        });
+        reorderBar.appendChild(downBtn);
+      }
+      thumb.appendChild(reorderBar);
+    }
+
     fileGrid.appendChild(thumb);
   });
   fileCountEl.textContent = uploadedFiles.length
-    ? `${uploadedFiles.length} file${uploadedFiles.length === 1 ? '' : 's'} added`
+    ? `${uploadedFiles.length} file${uploadedFiles.length === 1 ? '' : 's'} added — use the arrows to set review order`
     : 'No files added yet';
 }
 
@@ -1459,36 +1874,42 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
     return;
   }
 
+  const qualityIssues = validateCVQuality();
+  if (qualityIssues.length){
+    statusBox.className = 'status err';
+    statusBox.innerHTML = '<strong>For the strongest CV, please fix:</strong><br>' + qualityIssues.map(i => '• ' + i).join('<br>');
+    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
   if (SCRIPT_URL.includes('PASTE_YOUR')){
     statusBox.className = 'status err';
     statusBox.textContent = 'Form isn\'t connected yet — add your Apps Script Web App URL in the SCRIPT_URL constant.';
     return;
   }
 
+  const gooeyWrapper = document.getElementById('gooeyWrapper');
   const btn = document.getElementById('submitBtn');
-  const spinner = document.getElementById('spinner');
   const submitText = document.getElementById('submitText');
 
   btn.disabled = true;
-  spinner.style.display = 'inline-block';
-  submitText.textContent = 'Submitting...';
+  gooeyWrapper.classList.remove('success', 'error');
+  gooeyWrapper.classList.add('animating', 'loading');
 
   try{
-    submitText.textContent = 'Uploading files...';
-
     // Collect all text/date fields
     const form = document.getElementById('cvForm');
     const payload = {};
     form.querySelectorAll('input:not([type="file"]), textarea, select').forEach(field => {
-      if (field.name) payload[field.name] = field.value;
+      if (!field.name) return;
+      // Checkboxes report .value as "on" regardless of checked state — read .checked instead
+      payload[field.name] = (field.type === 'checkbox') ? (field.checked ? 'Yes' : 'No') : field.value;
     });
 
     // Convert accumulated file uploads to base64
     payload.files = await Promise.all(
       uploadedFiles.map(fileToBase64)
     );
-
-    submitText.textContent = 'Submitting...';
 
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
@@ -1501,8 +1922,12 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
     const result = await res.json();
     if (result.status !== 'success') throw new Error(result.message || 'Unknown error');
 
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('success');
+    setTimeout(() => gooeyWrapper.classList.remove('animating'), 700);
+
     statusBox.className = 'status ok';
-    statusBox.textContent = 'Submitted — you\'ll get a WhatsApp confirmation shortly.';
+    statusBox.textContent = "Thank you for submitting your request! We're working on it and will get back to you with feedback as soon as your CV is ready. Check your email for a confirmation too.";
     submitText.textContent = 'Submitted';
     document.getElementById('cvForm').reset();
 
@@ -1526,12 +1951,16 @@ document.getElementById('cvForm').addEventListener('submit', async function(e){
     roleOtherField.style.display = 'none';
 
   } catch(err){
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('error');
+    gooeyWrapper.classList.remove('animating');
+    setTimeout(() => gooeyWrapper.classList.remove('error'), 1500);
+
     statusBox.className = 'status err';
     statusBox.textContent = `Something went wrong: ${err.message}. Try again, or send your details directly.`;
     submitText.textContent = 'Submit my details';
-  } finally {
-    spinner.style.display = 'none';
     btn.disabled = false;
+  } finally {
     statusBox.scrollIntoView({behavior:'smooth', block:'center'});
   }
 });
