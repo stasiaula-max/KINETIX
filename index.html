@@ -80,7 +80,7 @@
   }
   body.dark .scroll-wash{opacity:0.3;}
 
-  .wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.25rem 5rem;position:relative;z-index:1;}
+  .wrap{max-width:760px;margin:0 auto;padding:4.5rem 1.25rem 5rem;position:relative;z-index:1;}
 
   header.hero{padding:1.5rem 0 1.5rem;border-bottom:2px solid var(--ink);margin-bottom:1.5rem;text-align:center;}
   .kinetix-logo{width:72px;height:72px;margin:0 auto .6rem;display:block;animation:logo-breathe 3s ease-in-out infinite;}
@@ -175,34 +175,66 @@
   }
   .currency-bar select:focus{outline:none;border-color:var(--brass);}
 
-  /* Service cards — clickable */
+  /* Service cards */
   .service-card{
     display:flex;
     justify-content:space-between;
-    align-items:center;
+    align-items:flex-start;
     gap:1rem;
     border:1.5px solid var(--line);
     border-radius:12px;
     padding:.9rem 1.1rem;
     margin-bottom:.7rem;
     background:var(--field-bg);
-    cursor:pointer;
     transition:transform .15s ease, border-color .15s ease;
-    text-decoration:none;
     color:inherit;
+    flex-wrap:wrap;
   }
   .service-card:hover{transform:translateY(-2px);border-color:var(--brass);}
   .service-card:last-child{margin-bottom:0;}
+  .service-info{flex:1;min-width:180px;}
   .service-info h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600;}
   .service-info p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.4;}
   .service-price{
     text-align:right;
     white-space:nowrap;
     flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:.4rem;
   }
   .service-price .amount{font-size:1.05rem;font-weight:700;color:var(--brass-dark);}
-  .service-price .native{display:block;font-size:.7rem;color:var(--hint);margin-top:.1rem;}
-  .service-price i{margin-left:.4rem;color:var(--hint);}
+  .service-price .native{display:block;font-size:.7rem;color:var(--hint);}
+
+  .rush-toggle{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    margin-top:.5rem;
+    font-size:.76rem;
+    color:var(--brass-dark);
+    cursor:pointer;
+    user-select:none;
+  }
+  .rush-toggle input{width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+  .rush-toggle i{color:#e8a020;}
+
+  .continue-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    background:var(--grad-sky);
+    color:#fff;
+    font-size:.78rem;
+    font-weight:600;
+    padding:.4rem .8rem;
+    border-radius:20px;
+    text-decoration:none;
+    white-space:nowrap;
+    transition:transform .15s ease;
+  }
+  .continue-btn:hover{transform:translateY(-1px);}
 
   .bundle-badge{
     display:inline-block;
@@ -330,28 +362,86 @@
   }
 
   /* Theme toggle */
-  .theme-toggle{
-    position:fixed;top:1rem;right:1rem;z-index:100;
-    width:42px;height:42px;border-radius:50%;
-    border:1.5px solid var(--line);
-    background:var(--card);
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    font-size:1rem;
-    box-shadow:var(--glass-shadow);
-    backdrop-filter:blur(5px);
-    transition:transform .15s ease, border-color .15s ease;
+  /* KINETIX glass liquid nav bar */
+  .kinetix-nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:center;
+    padding:.7rem .6rem;
+    pointer-events:none;
   }
-  .theme-toggle:hover{transform:scale(1.06);border-color:var(--brass);}
+  .nav-inner{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:.3rem;
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:50px;
+    padding:.35rem .5rem .35rem .8rem;
+    max-width:100%;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .nav-inner::-webkit-scrollbar{display:none;}
+  .nav-logo-mini{display:flex;flex-shrink:0;}
+  .nav-logo-mini svg{width:26px;height:26px;display:block;}
+  .nav-links{position:relative;display:flex;gap:.15rem;margin:0 .25rem;flex-shrink:0;}
+  .nav-link{
+    position:relative;z-index:2;
+    padding:.45rem .75rem;
+    border-radius:30px;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--muted);
+    text-decoration:none;
+    white-space:nowrap;
+    transition:color .3s ease;
+  }
+  .nav-link.active, .nav-link:hover{color:#fff;}
+  .nav-liquid{
+    position:absolute;top:0;left:0;height:100%;
+    background:var(--grad-sky);
+    border-radius:30px;
+    z-index:1;
+    opacity:0;
+    transition:left .45s cubic-bezier(.65,0,.35,1), width .45s cubic-bezier(.65,0,.35,1), border-radius .3s ease, opacity .2s ease;
+  }
+  .nav-theme-btn{
+    width:32px;height:32px;border-radius:50%;
+    border:none;
+    background:var(--field-bg);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;font-size:.9rem;
+    transition:transform .15s ease;
+  }
+  .nav-theme-btn:hover{transform:scale(1.08);}
 </style>
 </head>
 <body>
 <div class="scroll-wash" id="scrollWash"></div>
 
-<button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark and light mode">
-  <i class="fas fa-moon" id="themeIcon"></i>
-</button>
+<nav class="kinetix-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#3f7dfa" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
+        </g>
+      </svg>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link" data-page="index">Rates</a>
+      <a href="intake.html" class="nav-link" data-page="intake">Submit</a>
+      <a href="https://wa.me/971544564191" target="_blank" class="nav-link" data-page="contact">Contact</a>
+      <span class="nav-liquid" id="navLiquid"></span>
+    </div>
+    <button type="button" class="nav-theme-btn" id="themeToggle" aria-label="Toggle dark and light mode">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+</nav>
 
 <div class="wrap">
 
@@ -498,6 +588,33 @@
 </div>
 
 <script>
+// ---------- Liquid nav indicator ----------
+function initNav(activePage){
+  const links = document.querySelectorAll('.nav-link');
+  const liquid = document.getElementById('navLiquid');
+  let activeEl = null;
+  function moveLiquidTo(el){
+    if (!liquid) return;
+    if (!el){ liquid.style.opacity = 0; return; }
+    liquid.style.opacity = 1;
+    liquid.style.left = el.offsetLeft + 'px';
+    liquid.style.width = el.offsetWidth + 'px';
+  }
+  links.forEach(link => {
+    if (link.dataset.page === activePage){
+      link.classList.add('active');
+      activeEl = link;
+    }
+    link.addEventListener('mouseenter', () => moveLiquidTo(link));
+    link.addEventListener('touchstart', () => moveLiquidTo(link), {passive:true});
+  });
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl) navLinksEl.addEventListener('mouseleave', () => moveLiquidTo(activeEl));
+  requestAnimationFrame(() => moveLiquidTo(activeEl));
+  window.addEventListener('resize', () => moveLiquidTo(document.querySelector('.nav-link.active')));
+}
+initNav('index');
+
 // ---------- Scroll-reactive color wash (smooth continuous morph) ----------
 const scrollWash = document.getElementById('scrollWash');
 const washPalette = [
@@ -564,18 +681,18 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
 
 // ---------- Services & bundles data (AED base) ----------
 const services = [
-  { name: "Standard CV (With Photo)", desc: "Clean 1-page CV with photo, formatted for direct site submission & HR reviews.", price: 40 },
-  { name: "ATS & Technical CV", desc: "Formatted for online job portals, with keyword optimization for site/technical roles.", price: 50 },
-  { name: "Express CV Guide (20-min)", desc: "Live 20-minute 1-on-1 session teaching you to build or update your own CV.", price: 40 },
-  { name: "LinkedIn Basic Setup", desc: "New profile creation, photo upload, standard headline, primary job history.", price: 50 },
-  { name: "LinkedIn Full Optimization", desc: "Complete profile overhaul, professional bio, tailored headline, skills, work history.", price: 100 },
-  { name: "Single Certificate Formatting", desc: "Cleanup, alignment, high-resolution layout for 1 trade/safety certificate.", price: 60 },
-  { name: "Certificate Batch (3–5 Certs)", desc: "Layout, combining, and formatting multiple certificates into 1 clean PDF.", price: 150, priceMax: 200 },
-  { name: "Offer Letter / Document Cleanup", desc: "Professional employment offer letter formatting or document cleanup.", price: 40 }
+  { name: "Standard CV (With Photo)", desc: "Clean 1-page CV with photo, formatted for direct site submission & HR reviews.", price: 40, rush: 15 },
+  { name: "ATS & Technical CV", desc: "Formatted for online job portals, with keyword optimization for site/technical roles.", price: 50, rush: 15 },
+  { name: "Express CV Guide (20-min)", desc: "Live 20-minute 1-on-1 session teaching you to build or update your own CV.", price: 40, rush: 0 },
+  { name: "LinkedIn Basic Setup", desc: "New profile creation, photo upload, standard headline, primary job history.", price: 50, rush: 10 },
+  { name: "LinkedIn Full Optimization", desc: "Complete profile overhaul, professional bio, tailored headline, skills, work history.", price: 100, rush: 20 },
+  { name: "Single Certificate Formatting", desc: "Cleanup, alignment, high-resolution layout for 1 trade/safety certificate.", price: 60, rush: 10 },
+  { name: "Certificate Batch (3–5 Certs)", desc: "Layout, combining, and formatting multiple certificates into 1 clean PDF.", price: 150, priceMax: 200, rush: 20 },
+  { name: "Offer Letter / Document Cleanup", desc: "Professional employment offer letter formatting or document cleanup.", price: 40, rush: 10 }
 ];
 const bundles = [
-  { name: "Site Job Package", desc: "ATS CV + 1 Certificate Formatting & Cleanup", price: 90, save: 20 },
-  { name: "Full Career Package", desc: "ATS CV + Full LinkedIn Profile + Certificate Formatting", price: 160, save: 40 }
+  { name: "Site Job Package", desc: "ATS CV + 1 Certificate Formatting & Cleanup", price: 90, save: 20, rush: 20 },
+  { name: "Full Career Package", desc: "ATS CV + Full LinkedIn Profile + Certificate Formatting", price: 160, save: 40, rush: 30 }
 ];
 
 const currencyFlags = { AED:"🇦🇪", KES:"🇰🇪", UGX:"🇺🇬", USD:"🇺🇸", EUR:"🇪🇺", GBP:"🇬🇧", INR:"🇮🇳", PHP:"🇵🇭", PKR:"🇵🇰", NGN:"🇳🇬" };
@@ -609,24 +726,42 @@ function formatPrice(aedAmount){
 
 function renderList(container, items, isBundle){
   container.innerHTML = '';
-  items.forEach(item => {
-    const url = `intake.html?service=${encodeURIComponent(item.name)}&price=${item.price}${item.priceMax ? '-' + item.priceMax : ''}`;
-    const a = document.createElement('a');
-    a.className = 'service-card';
-    a.href = url;
+  items.forEach((item, idx) => {
+    const cardId = `${isBundle ? 'bundle' : 'svc'}-${idx}`;
     const priceLabel = item.priceMax
       ? `${formatPrice(item.price)} – ${formatPrice(item.priceMax)}`
       : formatPrice(item.price);
-    a.innerHTML = `
+    const card = document.createElement('div');
+    card.className = 'service-card';
+    card.innerHTML = `
       <div class="service-info">
         <h3>${item.name}${isBundle ? `<span class="bundle-badge">Save ${item.save} AED</span>` : ''}</h3>
         <p>${item.desc}</p>
+        ${item.rush ? `
+        <label class="rush-toggle">
+          <input type="checkbox" id="${cardId}-rush">
+          <span><i class="fas fa-bolt"></i> Need it urgently? +${item.rush} AED</span>
+        </label>` : ''}
       </div>
       <div class="service-price">
         <span class="amount">${priceLabel}</span>
-        <span class="native">${item.priceMax ? item.price + '–' + item.priceMax : item.price} AED<i class="fas fa-arrow-right"></i></span>
+        <span class="native">${item.priceMax ? item.price + '–' + item.priceMax : item.price} AED</span>
+        <a href="#" class="continue-btn" id="${cardId}-go">Select <i class="fas fa-arrow-right"></i></a>
       </div>`;
-    container.appendChild(a);
+    container.appendChild(card);
+
+    const goBtn = card.querySelector(`#${cardId}-go`);
+    const rushBox = card.querySelector(`#${cardId}-rush`);
+    goBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const rushChecked = rushBox && rushBox.checked;
+      const totalPrice = item.priceMax
+        ? `${item.price}-${item.priceMax}`
+        : (rushChecked ? item.price + item.rush : item.price);
+      let url = `intake.html?service=${encodeURIComponent(item.name)}&price=${totalPrice}`;
+      if (rushChecked) url += `&rush=1&rushFee=${item.rush}`;
+      window.location.href = url;
+    });
   });
 }
 
