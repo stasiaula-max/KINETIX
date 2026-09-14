@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINETIX — CV Intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#12212e;
+    --paper:#f6f3ec;
+    --card:rgba(255, 255, 255, 0.88);
+    --line:rgba(200, 210, 225, 0.6);
+    --brass:#3f7dfa;
+    --brass-dark:#2f63d6;
+    --ok:#2f6f4f;
+    --err:#b3452e;
+    --radius:16px;
+    --maxjobs:6;
+    --field-bg:rgba(253, 252, 250, 0.65);
+    --muted:#5a5f6d;
+    --hint:#8a8f9c;
+    --chip-bg:rgba(228, 238, 255, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.5);
+    --glass-shadow:0 8px 32px 0 rgba(63, 125, 250, 0.12);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.35), rgba(128,249,183,0.28));
+
+    --sky-1:#64A1FF;   --sky-2:#8BFCFE;
+    --mint-1:#9ABDEB;  --mint-2:#80F9B7;
+    --berry-1:#F095FF; --berry-2:#F64848;
+    --sunset-1:#FC7B7B;--sunset-2:#A6C1FF;
+    --citrus-1:#D278F2;--citrus-2:#FCC989;
+    --grad-sky:linear-gradient(135deg, var(--sky-1), var(--sky-2));
+    --grad-mint:linear-gradient(135deg, var(--mint-1), var(--mint-2));
+    --grad-berry:linear-gradient(135deg, var(--berry-1), var(--berry-2));
+    --grad-sunset:linear-gradient(135deg, var(--sunset-1), var(--sunset-2));
+    --grad-citrus:linear-gradient(135deg, var(--citrus-1), var(--citrus-2));
+  }
+  body.dark{
+    --ink:#eef2f8;
+    --paper:#0e1420;
+    --card:rgba(24, 30, 42, 0.85);
+    --line:rgba(70, 82, 105, 0.6);
+    --brass:#7fb4ff;
+    --brass-dark:#a8cfff;
+    --ok:#6fc79a;
+    --err:#e08265;
+    --field-bg:rgba(18, 23, 33, 0.6);
+    --muted:#a9b2c3;
+    --hint:#77869c;
+    --chip-bg:rgba(38, 47, 66, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.08);
+    --glass-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.22), rgba(128,249,183,0.16));
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    transition:background .4s ease, color .25s ease;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .scroll-wash{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    filter:blur(90px);
+    opacity:0.45;
+    transition:background 0.5s ease;
+  }
+  body.dark .scroll-wash{opacity:0.3;}
+  .wrap{max-width:680px;margin:0 auto;padding:4.5rem 1.25rem 5rem;position:relative;z-index:1;}
+  header.hero{
+    padding:1rem 0 2rem;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:2rem;
+    text-align:center;
+  }
+  header.hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(1.8rem,5vw,2.4rem);
+    margin:0 0 .4rem;
+    letter-spacing:-0.01em;
+  }
+  header.hero p{margin:0 auto;color:var(--muted);font-size:.98rem;max-width:52ch;}
+
+  .card{
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-radius:var(--radius);
+    padding:1.5rem;
+    margin-bottom:1.25rem;
+    transition:transform .2s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(63,125,250,0.16);}
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    font-weight:600;
+    margin:0 0 1.1rem;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .card h2 i{color:var(--brass);font-size:1rem;}
+
+  .field{margin-bottom:1rem;}
+  .field:last-child{margin-bottom:0;}
+  .field label{
+    display:block;
+    font-size:.82rem;
+    font-weight:600;
+    margin-bottom:.35rem;
+    color:var(--ink);
+  }
+  .field .hint{font-weight:400;color:var(--hint);font-size:.78rem;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+  @media(max-width:520px){.row{grid-template-columns:1fr;}}
+
+  input, textarea, select{
+    width:100%;
+    padding:.7rem .85rem;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    font-family:'Inter',sans-serif;
+    font-size:.95rem;
+    background:var(--field-bg);
+    color:var(--ink);
+    transition:border-color .15s ease, box-shadow .15s ease, background .25s ease;
+  }
+  textarea{resize:vertical;min-height:5rem;}
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(168,117,47,0.15);
+  }
+  input:invalid:not(:placeholder-shown){border-color:var(--err);}
+  input[type="file"]{padding:.55rem;}
+
+  .entry{
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:1.1rem;
+    margin-bottom:.9rem;
+    position:relative;
+    background:var(--field-bg);
+    transition:background .25s ease;
+  }
+  .entry .entry-num{
+    position:absolute;
+    top:-.6rem;
+    left:.9rem;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:.7rem;
+    font-weight:600;
+    padding:.15rem .55rem;
+    border-radius:20px;
+  }
+  .entry .remove-entry{
+    position:absolute;
+    top:.6rem;
+    right:.6rem;
+    background:none;
+    border:none;
+    color:#a99;
+    cursor:pointer;
+    font-size:.95rem;
+    padding:.25rem;
+    line-height:1;
+  }
+  .entry .remove-entry:hover{color:var(--err);}
+
+  .add-btn{
+    width:100%;
+    padding:.7rem;
+    background:none;
+    border:1.5px dashed var(--line);
+    border-radius:8px;
+    color:var(--brass-dark);
+    font-weight:600;
+    font-size:.88rem;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .add-btn:hover{border-color:var(--brass);background:var(--chip-bg);}
+  .add-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .cap-note{font-size:.75rem;color:var(--hint);margin-top:.4rem;text-align:center;}
+
+  /* CV template picker */
+  .template-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.7rem;
+  }
+  .template-option{
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:.7rem;
+    cursor:pointer;
+    background:var(--field-bg);
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .template-option:hover{transform:translateY(-2px);}
+  .template-option.selected{border-color:var(--brass);box-shadow:0 0 0 3px rgba(63,125,250,0.15);}
+  .template-name{font-size:.78rem;font-weight:700;margin-top:.5rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+  .template-desc{font-size:.68rem;color:var(--hint);margin-top:.15rem;line-height:1.3;}
+  .ats-tag{
+    background:var(--ok);color:#fff;font-size:.58rem;font-weight:700;
+    padding:.1rem .4rem;border-radius:10px;
+  }
+  .template-preview{
+    height:64px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid var(--line);
+    padding:.4rem .5rem;
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .template-preview span{display:block;height:4px;border-radius:2px;background:#c9ced8;width:100%;}
+  .template-preview span.short{width:55%;}
+  .template-preview span.thin{height:2px;background:#dde1e8;}
+
+  .preview-ats-classic span{background:#9aa4b5;}
+  .preview-ats-classic span:first-child{width:70%;margin:0 auto;background:#5a6478;height:6px;}
+
+  .preview-ats-minimal span{background:#9aa4b5;}
+  .preview-ats-minimal span:first-child{width:60%;background:#333;height:6px;}
+
+  .preview-navy-sidebar{flex-direction:row;padding:0;gap:0;}
+  .preview-navy-sidebar .bar{width:30%;background:#12212e;height:100%;flex-shrink:0;}
+  .preview-navy-sidebar .lines{flex:1;padding:.4rem .5rem;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-navy-sidebar .lines span{background:#8bb4ff;}
+
+  .preview-bold-header{padding:0;}
+  .preview-bold-header .band{height:22px;background:linear-gradient(90deg,var(--sky-1),var(--mint-2));}
+  .preview-bold-header span{margin:.3rem .5rem 0;background:#9aa4b5;}
+
+  .preview-minimalist span{background:#c9ced8;}
+  .preview-minimalist span.thin{background:#e4e7ec;}
+
+  .preview-two-column{flex-direction:row;gap:.4rem;}
+  .preview-two-column .col{flex:1;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-two-column .col span{background:#9aa4b5;}
+
+  /* Gooey submit button */
+  .gooey-wrapper{
+    position:relative;
+    width:100%;
+    height:68px;
+    margin-bottom:.5rem;
+  }
+  .gooey-wrapper.loading, .gooey-wrapper.success{filter:drop-shadow(0 0 10px rgba(100,161,255,0.5));}
+  .gooey-submit{
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+    width:100%;
+    height:60px;
+    padding:0;
+    background:linear-gradient(135deg, var(--sky-1), var(--mint-2));
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    z-index:3;
+    transition:width .5s cubic-bezier(.65,0,.35,1), border-radius .5s ease, background .4s ease, color .3s ease;
+  }
+  .gooey-submit:disabled{cursor:not-allowed;}
+  .gooey-wrapper.loading .gooey-submit,
+  .gooey-wrapper.success .gooey-submit{
+    width:60px;
+    color:rgba(255,255,255,0);
+  }
+  .gooey-wrapper.success .gooey-submit{background:linear-gradient(135deg, var(--ok), #4fb98a);}
+  .gooey-wrapper.error .gooey-submit{background:linear-gradient(135deg, var(--err), #d9634a);}
+
+  .gooey-loader-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:2;
+    opacity:0;
+    pointer-events:none;
+  }
+  .gooey-wrapper.loading .gooey-loader-wrap{opacity:1;}
+  .gooey-dot{
+    position:absolute;
+    top:50%;left:50%;
+    width:60px;height:60px;
+    margin:-30px 0 0 -30px;
+    border-radius:50%;
+  }
+  .dot-sky{background:var(--sky-1);}
+  .dot-mint{background:var(--mint-2);}
+  .dot-berry{background:var(--berry-1);}
+  .gooey-wrapper.loading .dot-sky{animation:orbit-a 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-mint{animation:orbit-b 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-berry{animation:orbit-c 1.6s linear infinite;}
+  @keyframes orbit-a{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(38px,0);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+  @keyframes orbit-b{
+    0%{transform:scale(.35) translate(0,0) rotate(0deg);}
+    50%{transform:scale(.35) translate(-26px,-26px) rotate(0deg);}
+    100%{transform:scale(.35) translate(0,0) rotate(0deg);}
+  }
+  @keyframes orbit-c{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(-26px,26px);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+
+  .gooey-check-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:4;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;
+  }
+  .gooey-wrapper.success .gooey-check-wrap{opacity:1;}
+  .gooey-check-wrap svg{width:32px;height:20px;}
+  .gooey-check{
+    fill:none;
+    stroke:#fff;
+    stroke-width:10;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:1000;
+    stroke-dashoffset:1000;
+  }
+  .gooey-wrapper.success .gooey-check{animation:draw-check .6s .1s ease forwards;}
+  @keyframes draw-check{to{stroke-dashoffset:0;}}
+
+  .status{
+    margin-top:1rem;
+    padding:.85rem 1rem;
+    border-radius:8px;
+    font-size:.9rem;
+    display:none;
+  }
+  .status.ok{display:block;background:#eaf3ee;color:var(--ok);border:1px solid #bfdccb;}
+  .status.err{display:block;background:#fbece7;color:var(--err);border:1px solid #f0c3b4;}
+
+  .error-msg{color:var(--err);font-size:.78rem;margin-top:.3rem;display:none;}
+  .field.has-error input, .field.has-error textarea{border-color:var(--err);}
+  .field.has-error .error-msg{display:block;}
+
+  body.dark .status.ok{background:#1c3327;border-color:#2f5540;}
+  body.dark .status.err{background:#3a2118;border-color:#5c3627;}
+
+  /* Theme toggle */
+  /* KINETIX glass liquid nav bar */
+  .kinetix-nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:center;
+    padding:.7rem .6rem;
+    pointer-events:none;
+  }
+  .nav-inner{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:.3rem;
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:50px;
+    padding:.35rem .5rem .35rem .8rem;
+    max-width:100%;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .nav-inner::-webkit-scrollbar{display:none;}
+  .nav-logo-mini{display:flex;flex-shrink:0;}
+  .nav-logo-mini svg{width:26px;height:26px;display:block;}
+  .nav-links{position:relative;display:flex;gap:.15rem;margin:0 .25rem;flex-shrink:0;}
+  .nav-link{
+    position:relative;z-index:2;
+    padding:.45rem .75rem;
+    border-radius:30px;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--muted);
+    text-decoration:none;
+    white-space:nowrap;
+    transition:color .3s ease;
+  }
+  .nav-link.active, .nav-link:hover{color:#fff;}
+  .nav-liquid{
+    position:absolute;top:0;left:0;height:100%;
+    background:var(--grad-sky);
+    border-radius:30px;
+    z-index:1;
+    opacity:0;
+    transition:left .45s cubic-bezier(.65,0,.35,1), width .45s cubic-bezier(.65,0,.35,1), border-radius .3s ease, opacity .2s ease;
+  }
+  .nav-theme-btn{
+    width:32px;height:32px;border-radius:50%;
+    border:none;
+    background:var(--field-bg);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;font-size:.9rem;
+    transition:transform .15s ease;
+  }
+  .nav-theme-btn:hover{transform:scale(1.08);}
+
+  /* Skills — infinite tag input */
+  .skills-box{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem;
+    padding:.6rem;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    background:var(--field-bg);
+  }
+  .skill-chip{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    background:var(--chip-bg);
+    color:var(--ink);
+    padding:.3rem .5rem .3rem .7rem;
+    border-radius:20px;
+    font-size:.85rem;
+    font-weight:500;
+  }
+  .skill-chip button{
+    background:none;
+    border:none;
+    color:var(--hint);
+    cursor:pointer;
+    font-size:.8rem;
+    padding:0;
+    line-height:1;
+    display:flex;
+  }
+  .skill-chip button:hover{color:var(--err);}
+  #skillInput{
+    flex:1;
+    min-width:120px;
+    border:none;
+    padding:.3rem;
+    background:transparent;
+  }
+  #skillInput:focus{outline:none;box-shadow:none;}
+  .skills-count{font-size:.75rem;color:var(--hint);margin-top:.4rem;}
+
+  /* Animated shimmer heading */
+  .kinetix-logo{width:64px;height:64px;margin:0 auto .5rem;display:block;animation:logo-breathe 3s ease-in-out infinite;}
+  @keyframes logo-breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  header.hero h1{
+    background:linear-gradient(100deg, var(--sky-1) 0%, var(--mint-2) 20%, var(--berry-1) 40%, var(--sunset-1) 60%, var(--citrus-1) 80%, var(--sky-1) 100%);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:shimmer 5s linear infinite;
+  }
+  header.hero .tagline{
+    font-size:.78rem;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .7rem;
+  }
+  @keyframes shimmer{
+    0%{background-position:300% center;}
+    100%{background-position:-50% center;}
+  }
+  header.hero .hero-icon{
+    display:inline-block;
+    animation:float-pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes float-pulse{
+    0%,100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-4px) scale(1.08);}
+  }
+  @keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes bounce-soft{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+  .icon-spin{display:inline-block;animation:spin-slow 6s linear infinite;}
+  .icon-bounce{display:inline-block;animation:bounce-soft 2.2s ease-in-out infinite;}
+
+  /* Skill add button + suggestion chips */
+  .skill-add-btn{
+    width:32px;height:32px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg, var(--brass), var(--brass-dark));
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.8rem;
+    flex-shrink:0;
+    transition:transform .15s ease;
+  }
+  .skill-add-btn:hover{transform:scale(1.1);}
+  .skill-chip i.fa-tag{font-size:.7rem;opacity:.7;margin-right:.1rem;}
+
+  .suggestions-wrap{margin-top:.7rem;}
+  .suggestions-label{font-size:.78rem;color:var(--hint);margin-bottom:.4rem;display:flex;align-items:center;gap:.35rem;}
+  .suggestions-label i{color:var(--brass);}
+  .suggestion-chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .suggestion-chip{
+    display:flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.35rem .65rem;
+    border-radius:20px;
+    border:1.5px dashed var(--brass);
+    background:transparent;
+    color:var(--brass-dark);
+    font-size:.8rem;
+    font-weight:500;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .suggestion-chip:hover{background:var(--chip-bg);transform:translateY(-1px);}
+  .suggestion-chip.added{
+    border-style:solid;
+    border-color:var(--ok);
+    color:var(--ok);
+    opacity:.55;
+    cursor:default;
+  }
+  .suggestion-chip.added:hover{transform:none;background:transparent;}
+
+  /* Glossy animated "add more" button */
+  .glossy-btn{
+    position:relative;
+    overflow:hidden;
+    width:100%;
+    padding:.75rem;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg, #17708a, #0e4f63);
+    color:#eafcff;
+    font-weight:600;
+    font-size:.9rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    box-shadow:0 4px 14px rgba(23,112,138,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .glossy-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(23,112,138,0.45);}
+  .glossy-btn::after{
+    content:'';
+    position:absolute;
+    top:0;left:-60%;
+    width:40%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform:skewX(-25deg);
+    animation:glossy-sweep 2.8s ease-in-out infinite;
+  }
+  @keyframes glossy-sweep{
+    0%{left:-60%;}
+    45%{left:120%;}
+    100%{left:120%;}
+  }
+
+  /* Glass glowing mint-blue dropzone */
+  .dropzone{
+    position:relative;
+    border:1.5px dashed rgba(64,200,220,0.5);
+    border-radius:12px;
+    background:linear-gradient(135deg, rgba(64,200,220,0.08), rgba(64,150,220,0.04));
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    padding:1.6rem 1rem;
+    text-align:center;
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow:0 0 0 0 rgba(64,200,220,0.4);
+    animation:glow-pulse 3s ease-in-out infinite;
+  }
+  .dropzone:hover, .dropzone.drag-over{
+    border-color:#40c8dc;
+    background:linear-gradient(135deg, rgba(64,200,220,0.15), rgba(64,150,220,0.08));
+  }
+  @keyframes glow-pulse{
+    0%,100%{box-shadow:0 0 8px 0 rgba(64,200,220,0.15);}
+    50%{box-shadow:0 0 18px 4px rgba(64,200,220,0.3);}
+  }
+  .dropzone i{font-size:1.6rem;color:#22aec4;margin-bottom:.5rem;display:block;}
+  .dropzone .dz-text{font-size:.88rem;font-weight:600;color:var(--ink);}
+  .dropzone .dz-hint{font-size:.75rem;color:var(--hint);margin-top:.2rem;}
+  .dropzone input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+    width:100%;height:100%;
+  }
+
+  /* File thumbnail grid */
+  .file-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));
+    gap:.7rem;
+    margin-top:1rem;
+  }
+  .file-thumb{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--field-bg);
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .15s ease;
+  }
+  .file-thumb:hover{transform:translateY(-2px);}
+  .file-thumb img{width:100%;height:100%;object-fit:cover;}
+  .file-thumb .file-icon{font-size:2rem;color:var(--brass);}
+  .file-thumb .file-name{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    font-size:.62rem;
+    padding:.25rem .35rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .file-thumb .remove-file{
+    position:absolute;
+    top:.3rem;right:.3rem;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-size:.65rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+  }
+  .file-thumb .remove-file:hover{background:var(--err);}
+  .file-count{font-size:.78rem;color:var(--hint);margin-top:.5rem;text-align:center;}
+
+  .file-order-badge{
+    position:absolute;
+    top:.3rem;left:.3rem;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--grad-sky);
+    color:#fff;
+    font-size:.62rem;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    z-index:2;
+  }
+  .file-reorder-bar{
+    position:absolute;
+    bottom:1.4rem;left:0;right:0;
+    display:flex;justify-content:center;gap:.3rem;
+    z-index:2;
+  }
+  .file-reorder-bar button{
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-size:.6rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .file-reorder-bar button:hover{background:var(--brass);}
+
+  /* Pricing card */
+  .pricing-card{
+    background:linear-gradient(135deg, var(--card), rgba(255,255,255,0.1));
+    border-color:var(--brass);
+    text-align:center;
+  }
+  .pricing-card h3{margin:0 0 .5rem;color:var(--brass);font-family:'Fraunces',serif;}
+  .pricing-card .price{font-size:1.5rem;font-weight:700;margin:.5rem 0;color:var(--ink);}
+  .pricing-card ul{list-style:none;padding:0;text-align:left;font-size:.9rem;color:var(--muted);}
+  .pricing-card ul li{margin-bottom:.3rem;}
+  .pricing-card ul li i{color:var(--ok);margin-right:.5rem;}
+
+  /* Legal checkbox */
+  .checkbox-field{
+    display:flex;
+    align-items:flex-start;
+    gap:.5rem;
+    margin-bottom:1rem;
+    font-size:.9rem;
+    color:var(--ink);
+  }
+  .checkbox-field input[type="checkbox"]{width:18px;height:18px;margin-top:3px;cursor:pointer;flex-shrink:0;}
+  .checkbox-field label{cursor:pointer;font-weight:400;margin-bottom:0;}
+  .checkbox-field a{color:var(--brass);text-decoration:underline;cursor:pointer;}
+  .checkbox-field.has-error{color:var(--err);}
+
+  /* Floating WhatsApp button */
+  .whatsapp-float{
+    position:fixed;
+    width:56px;height:56px;
+    bottom:20px;right:20px;
+    background-color:#25d366;
+    color:#fff;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    z-index:100;
+    cursor:pointer;
+    transition:transform .2s ease;
+    box-shadow:0 4px 15px rgba(37,211,102,0.4);
+    text-decoration:none;
+  }
+  .whatsapp-float:hover{transform:scale(1.08);}
+
+  /* Footer */
+  .footer{
+    margin-top:3rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--line);
+    text-align:center;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+  .footer-links{margin-bottom:1rem;}
+  .footer-links button{
+    background:none;
+    border:none;
+    color:var(--brass);
+    cursor:pointer;
+    font-size:.85rem;
+    margin:0 .5rem;
+    text-decoration:underline;
+    font-family:'Inter',sans-serif;
+  }
+  .footer-links button:hover{color:var(--ink);}
+
+  /* Legal modals */
+  .modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;top:0;
+    width:100%;height:100%;
+    background:var(--modal-backdrop);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    align-items:center;
+    justify-content:center;
+  }
+  .modal.open{display:flex;}
+  .modal-content{
+    background-color:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    margin:auto;
+    padding:2rem;
+    width:90%;
+    max-width:500px;
+    border-radius:var(--radius);
+    position:relative;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .close-modal{
+    color:var(--muted);
+    position:absolute;
+    top:1rem;right:1rem;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+    line-height:1;
+  }
+  .close-modal:hover{color:var(--ink);}
+  .modal h2{font-family:'Fraunces',serif;margin-top:0;color:var(--brass);}
+  .modal p, .modal ul{font-size:.9rem;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="scroll-wash" id="scrollWash"></div>
+
+<nav class="kinetix-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#3f7dfa" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
+        </g>
+      </svg>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link" data-page="index">Rates</a>
+      <a href="intake.html" class="nav-link" data-page="intake">Submit</a>
+      <a href="other-services.html" class="nav-link" data-page="more">More</a>
+      <a href="https://wa.me/971544564191" target="_blank" class="nav-link" data-page="contact">Contact</a>
+      <span class="nav-liquid" id="navLiquid"></span>
+    </div>
+    <button type="button" class="nav-theme-btn" id="themeToggle" aria-label="Toggle dark and light mode">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+</nav>
+
+<a href="https://wa.me/971544564191" class="whatsapp-float" target="_blank" aria-label="Contact us on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
+<div class="wrap">
+
+  <header class="hero">
+    <svg class="kinetix-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KINETIX logo">
+      <defs>
+        <linearGradient id="kGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
+          <stop offset="0%" stop-color="#64A1FF"/>
+          <stop offset="50%" stop-color="#80F9B7"/>
+          <stop offset="100%" stop-color="#64A1FF"/>
+          <animate attributeName="x1" values="-200;200;-200" dur="4s" repeatCount="indefinite"/>
+          <animate attributeName="x2" values="0;400;0" dur="4s" repeatCount="indefinite"/>
+        </linearGradient>
+      </defs>
+      <g stroke="url(#kGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M 55 20 L 55 180"/>
+        <path d="M 55 100 L 155 20"/>
+        <path d="M 55 100 L 155 180"/>
+      </g>
+    </svg>
+    <h1>KINETIX</h1>
+    <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
+    <p>Fill this out once — your details, work history, and certificates go straight to your writer. Takes about five minutes.</p>
+  </header>
+
+  <div class="card pricing-card" id="selectedServiceCard" style="display:none;">
+    <h3><i class="fas fa-crown"></i> <span id="selectedServiceName"></span></h3>
+    <div class="price" id="selectedServicePrice"></div>
+    <p style="font-size:.82rem;color:var(--muted);margin:0;">Selected from the <a href="index.html" style="color:var(--brass);">rate card</a> — pay via your chosen method, then confirm on WhatsApp.</p>
+  </div>
+
+  <div class="card pricing-card" id="noServiceCard">
+    <h3><i class="fas fa-list-check"></i> Not sure which service yet?</h3>
+    <p style="font-size:.88rem;color:var(--muted);margin:0;">Check the <a href="index.html" style="color:var(--brass);font-weight:600;">rate card</a> first, or just fill in your details below and we'll confirm pricing over WhatsApp.</p>
+  </div>
+
+  <form id="cvForm" novalidate>
+    <input type="hidden" id="selectedService" name="selectedService">
+    <input type="hidden" id="selectedPrice" name="selectedPrice">
+    <input type="hidden" id="isRush" name="isRush">
+    <input type="hidden" id="rushFee" name="rushFee">
+
+    <!-- Personal Info -->
+    <div class="card">
+      <h2><i class="fas fa-user"></i> Personal details</h2>
+      <div class="row">
+        <div class="field">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" name="fullName" required>
+          <div class="error-msg">Enter your full name.</div>
+        </div>
+        <div class="field">
+          <label for="phone">Phone / WhatsApp</label>
+          <input type="tel" id="phone" name="phone" placeholder="+971 5X XXX XXXX" required>
+          <div class="error-msg">Enter a phone number.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+        <div class="error-msg">Enter a valid email.</div>
+      </div>
+      <div class="field">
+        <label for="location">Current location <span class="hint">(city, country)</span></label>
+        <input type="text" id="location" name="location">
+      </div>
+      <div class="field">
+        <label for="nationality">Nationality</label>
+        <input type="text" id="nationality" name="nationality" placeholder="e.g. Kenyan, Indian, Filipino, Pakistani">
+      </div>
+      <div class="field">
+        <label for="linkedin">LinkedIn URL <span class="hint">(optional)</span></label>
+        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+      </div>
+    </div>
+
+    <!-- Visa & Availability -->
+    <div class="card">
+      <h2><i class="fas fa-passport"></i> Visa & availability</h2>
+      <div class="field">
+        <label for="visaStatus">Current visa status</label>
+        <select id="visaStatus" name="visaStatus" required>
+          <option value="" disabled selected>Select your status</option>
+          <option value="Employed - Active Visa">Employed — active company visa</option>
+          <option value="Employed - Serving Notice">Employed — serving notice period</option>
+          <option value="Visit Visa">Visit visa</option>
+          <option value="Cancelled Visa - Ready to Join">Visa cancelled — ready to join immediately</option>
+          <option value="Golden Visa / Freelance Permit">Golden visa / freelance permit</option>
+          <option value="Outside UAE">Outside UAE — needs sponsorship</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="error-msg">Select your visa status.</div>
+      </div>
+      <div class="field" id="visaOtherField" style="display:none;">
+        <label for="visaOther">Please specify</label>
+        <input type="text" id="visaOther" name="visaOther">
+      </div>
+      <div class="field">
+        <label for="noticePeriod">Notice period / availability <span class="hint">(optional)</span></label>
+        <input type="text" id="noticePeriod" name="noticePeriod" placeholder="e.g. Immediate, 30 days, 1 month">
+      </div>
+    </div>
+
+    <!-- CV Style -->
+    <div class="card">
+      <h2><i class="fas fa-palette"></i> Choose your CV style</h2>
+      <p style="font-size:.82rem;color:var(--muted);margin:0 0 .9rem;">"ATS-Safe" styles are built for online job portals and automated scanners. The others are for sending directly to a human — recruiter, hiring manager, WhatsApp, email.</p>
+      <div class="template-grid" id="templateGrid">
+        <div class="template-option" data-template="ats-classic">
+          <div class="template-preview preview-ats-classic"><span></span><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">ATS Classic <span class="ats-tag">ATS-Safe</span></div>
+          <div class="template-desc">Clean single column, centered header.</div>
+        </div>
+        <div class="template-option" data-template="ats-minimal">
+          <div class="template-preview preview-ats-minimal"><span></span><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">ATS Minimal <span class="ats-tag">ATS-Safe</span></div>
+          <div class="template-desc">Left-aligned, monochrome, zero risk.</div>
+        </div>
+        <div class="template-option" data-template="navy-sidebar">
+          <div class="template-preview preview-navy-sidebar"><div class="bar"></div><div class="lines"><span></span><span></span><span class="short"></span></div></div>
+          <div class="template-name">Navy Sidebar</div>
+          <div class="template-desc">Bold navy column for contact & skills.</div>
+        </div>
+        <div class="template-option" data-template="bold-header">
+          <div class="template-preview preview-bold-header"><div class="band"></div><span></span><span></span><span class="short"></span></div>
+          <div class="template-name">Bold Header</div>
+          <div class="template-desc">Full-width color band up top.</div>
+        </div>
+        <div class="template-option" data-template="minimalist-elegant">
+          <div class="template-preview preview-minimalist"><span class="thin"></span><span></span><span class="short"></span><span class="thin"></span></div>
+          <div class="template-name">Minimalist Elegant</div>
+          <div class="template-desc">Airy whitespace, refined dividers.</div>
+        </div>
+        <div class="template-option" data-template="two-column">
+          <div class="template-preview preview-two-column"><div class="col"><span></span><span></span></div><div class="col"><span></span><span></span></div></div>
+          <div class="template-name">Two-Column Compact</div>
+          <div class="template-desc">Denser, magazine-style layout.</div>
+        </div>
+      </div>
+      <div class="field" id="templateField" style="margin-top:.5rem;">
+        <input type="hidden" id="cvTemplate" name="cvTemplate" required>
+        <div class="error-msg" id="templateError">Pick a CV style to continue.</div>
+      </div>
+    </div>
+
+    <!-- Application Letter -->
+    <div class="card">
+      <h2><i class="fas fa-envelope-open-text"></i> Application letter</h2>
+      <div class="checkbox-field" style="margin-bottom:0;">
+        <input type="checkbox" id="wantsCoverLetter" name="wantsCoverLetter">
+        <label for="wantsCoverLetter">Also draft a professional application/cover letter to go with my CV — styled to match whichever CV design I picked above.</label>
+      </div>
+    </div>
+
+    <!-- Target Role -->
+    <div class="card">
+      <h2><i class="fas fa-bullseye"></i> Target role</h2>
+      <div class="field">
+        <label for="industry">Industry</label>
+        <select id="industry" name="industry" required>
+          <option value="" disabled selected>Select an industry</option>
+        </select>
+        <div class="error-msg">Select an industry.</div>
+      </div>
+      <div class="field">
+        <label for="sector">Sector</label>
+        <select id="sector" name="sector" disabled>
+          <option value="" disabled selected>Select an industry first</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="specificRole">Specific role</label>
+        <select id="specificRole" name="specificRole" disabled>
+          <option value="" disabled selected>Select a sector first</option>
+        </select>
+      </div>
+      <div class="field" id="roleOtherField" style="display:none;">
+        <label for="roleOther">Please specify the role</label>
+        <input type="text" id="roleOther" name="roleOther">
+      </div>
+      <div class="field">
+        <label for="summary">Professional summary <span class="hint">(2–3 sentences, or leave blank and we'll draft one)</span></label>
+        <textarea id="summary" name="summary"></textarea>
+      </div>
+    </div>
+
+    <!-- Work Experience (repeatable, capped at 6 per backend) -->
+    <div class="card">
+      <h2><i class="fas fa-briefcase"></i> Work experience</h2>
+      <div id="jobsContainer"></div>
+      <button type="button" class="add-btn" id="addJobBtn"><i class="fas fa-plus"></i> Add another job</button>
+      <div class="cap-note" id="jobCapNote"></div>
+    </div>
+
+    <!-- Education (repeatable, no hard cap) -->
+    <div class="card">
+      <h2><i class="fas fa-graduation-cap"></i> Education & certifications</h2>
+      <div id="eduContainer"></div>
+      <button type="button" class="add-btn" id="addEduBtn"><i class="fas fa-plus"></i> Add another qualification</button>
+    </div>
+
+    <!-- Skills — add as many as you want -->
+    <div class="card">
+      <h2><i class="fas fa-tools"></i> Skills</h2>
+      <div class="field" id="skillsField">
+        <label for="skillInput">Key skills <span class="hint">(optional — leave blank and we'll add relevant skills for your role)</span></label>
+        <div class="skills-box" id="skillsBox">
+          <input type="text" id="skillInput" placeholder="e.g. Risk Assessment">
+          <button type="button" class="skill-add-btn" id="skillAddBtn" aria-label="Add skill"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="skills-count" id="skillsCount">0 skills added</div>
+        <div class="suggestions-wrap" id="suggestionsWrap" style="display:none;">
+          <div class="suggestions-label"><i class="fas fa-lightbulb icon-bounce"></i> Suggested for your role — tap to add</div>
+          <div class="suggestion-chips" id="suggestionChips"></div>
+        </div>
+        <div class="error-msg">Add at least one skill.</div>
+        <input type="hidden" id="skills" name="skills">
+      </div>
+    </div>
+
+    <!-- Certificate uploads -->
+    <div class="card">
+      <h2><i class="fas fa-paperclip"></i> Certificates & documents</h2>
+      <label class="dropzone" id="dropzone">
+        <i class="fas fa-cloud-arrow-up icon-bounce"></i>
+        <div class="dz-text">Tap to choose files</div>
+        <div class="dz-hint">PDF, JPG, PNG — add as many as you need</div>
+        <input type="file" id="certFiles" multiple accept=".pdf,.jpg,.jpeg,.png">
+      </label>
+      <div class="file-grid" id="fileGrid"></div>
+      <div class="file-count" id="fileCount">No files added yet</div>
+      <button type="button" class="glossy-btn" id="addMoreFilesBtn" style="margin-top:.9rem;">
+        <i class="fas fa-plus"></i> Add more files
+      </button>
+    </div>
+
+    <div class="checkbox-field" id="legalField">
+      <input type="checkbox" id="legalCheck" name="legalCheck" required>
+      <label for="legalCheck">
+        I agree to the <a onclick="openModal('privacyModal')">Privacy Policy</a>, <a onclick="openModal('termsModal')">Terms of Service</a>, and <a onclick="openModal('cookieModal')">Cookie Policy</a>.
+      </label>
+    </div>
+
+    <div class="gooey-wrapper" id="gooeyWrapper">
+      <button type="submit" class="gooey-submit" id="submitBtn">
+        <span id="submitText">Submit my details</span>
+      </button>
+      <div class="gooey-loader-wrap">
+        <span class="gooey-dot dot-sky"></span>
+        <span class="gooey-dot dot-mint"></span>
+        <span class="gooey-dot dot-berry"></span>
+      </div>
+      <div class="gooey-check-wrap">
+        <svg viewBox="0 0 64.5 37.4"><polyline class="gooey-check" points="5,13 21.8,32.4 59.5,5"/></svg>
+      </div>
+    </div>
+    <div class="status" id="statusBox"></div>
+  </form>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <button type="button" onclick="openModal('privacyModal')">Privacy Policy</button>
+      <button type="button" onclick="openModal('termsModal')">Terms of Service</button>
+      <button type="button" onclick="openModal('cookieModal')">Cookie Policy</button>
+      <button type="button" onclick="openModal('disclaimerModal')">Disclaimer</button>
+    </div>
+    <p>
+      <i class="fas fa-envelope"></i> maxmeely@pm.me<br>
+      <i class="fab fa-whatsapp"></i> +971 54 456 4191<br><br>
+      © 2026 All Rights Reserved.
+    </p>
+  </footer>
+</div>
+
+<!-- Legal modals -->
+<div id="privacyModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
+    <h2>Privacy Policy</h2>
+    <p><strong>Effective Date:</strong> January 1, 2026</p>
+    <p>We collect the personal information you submit here (name, contact details, work history, and uploaded documents) solely to prepare your CV.</p>
+    <p><strong>Data usage:</strong> Your data is stored securely and is not shared with third parties without your consent, except where necessary to deliver the service (e.g. passing details to your assigned writer).</p>
+    <p><strong>Cookies:</strong> Essential cookies are used to remember preferences such as dark mode.</p>
+    <p><strong>Contact:</strong> For data-related questions, email maxmeely@pm.me.</p>
+  </div>
+</div>
+
+<div id="termsModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
+    <h2>Terms of Service</h2>
+    <p><strong>Effective Date:</strong> January 1, 2026</p>
+    <p>By submitting this form, you agree to the following:</p>
+    <ul>
+      <li><strong>Accuracy:</strong> The information you provide is accurate and truthful to the best of your knowledge.</li>
+      <li><strong>Usage rights:</strong> We may use the content you submit to produce your final CV document. You retain ownership of your personal data.</li>
+      <li><strong>Limitation of liability:</strong> We are not responsible for hiring outcomes based on the quality or accuracy of information you provide.</li>
+      <li><strong>Payment:</strong> Payment terms are agreed separately and are due upon delivery unless otherwise arranged.</li>
+    </ul>
+  </div>
+</div>
+
+<div id="cookieModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('cookieModal')">&times;</span>
+    <h2>Cookie Policy</h2>
+    <p>This form uses a small amount of local browser storage, not tracking cookies:</p>
+    <ul>
+      <li><strong>Preference storage:</strong> Remembers your light/dark mode choice on this device.</li>
+      <li><strong>No third-party tracking:</strong> We do not use analytics or advertising cookies.</li>
+    </ul>
+  </div>
+</div>
+
+<div id="disclaimerModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('disclaimerModal')">&times;</span>
+    <h2>Disclaimer</h2>
+    <p>The information you provide is used to prepare a professional CV document. While every effort is made to ensure accuracy, we are not responsible for errors originating from the source material you submit.</p>
+    <p>This service assists with resume writing and does not guarantee job placement, interviews, or hiring outcomes.</p>
+  </div>
+</div>
+</div>
+
+<script>
+// ---------- Liquid nav indicator ----------
+function initNav(activePage){
+  const links = document.querySelectorAll('.nav-link');
+  const liquid = document.getElementById('navLiquid');
+  let activeEl = null;
+  function moveLiquidTo(el){
+    if (!liquid) return;
+    if (!el){ liquid.style.opacity = 0; return; }
+    liquid.style.opacity = 1;
+    liquid.style.left = el.offsetLeft + 'px';
+    liquid.style.width = el.offsetWidth + 'px';
+  }
+  links.forEach(link => {
+    if (link.dataset.page === activePage){
+      link.classList.add('active');
+      activeEl = link;
+    }
+    link.addEventListener('mouseenter', () => moveLiquidTo(link));
+    link.addEventListener('touchstart', () => moveLiquidTo(link), {passive:true});
+  });
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl) navLinksEl.addEventListener('mouseleave', () => moveLiquidTo(activeEl));
+  requestAnimationFrame(() => moveLiquidTo(activeEl));
+  window.addEventListener('resize', () => moveLiquidTo(document.querySelector('.nav-link.active')));
+}
+initNav('intake');
+
+// ---------- Legal modals ----------
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
+});
+
+// ---------- Selected service from rate card (URL params) ----------
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const service = params.get('service');
+  const price = params.get('price');
+  const isRush = params.get('rush') === '1';
+  const rushFee = params.get('rushFee');
+  if (service){
+    document.getElementById('selectedService').value = service;
+    document.getElementById('selectedPrice').value = price || '';
+    document.getElementById('selectedServiceName').textContent = service;
+    let priceText = price ? `${price} AED` : '';
+    if (isRush && rushFee) priceText += ` (includes +${rushFee} AED urgent fee)`;
+    document.getElementById('selectedServicePrice').textContent = priceText;
+    document.getElementById('selectedServiceCard').style.display = 'block';
+    document.getElementById('noServiceCard').style.display = 'none';
+    document.getElementById('isRush').value = isRush ? 'Yes' : 'No';
+    document.getElementById('rushFee').value = rushFee || '';
+
+    if (isRush){
+      const rushBadge = document.createElement('span');
+      rushBadge.style.cssText = 'display:inline-block;background:var(--grad-berry);color:#fff;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;margin-top:.5rem;';
+      rushBadge.innerHTML = '<i class="fas fa-bolt"></i> Urgent request';
+      document.getElementById('selectedServiceCard').appendChild(rushBadge);
+    }
+  }
+})();
+
+/* ============================================================
+   CONFIG — paste your deployed Apps Script Web App URL here.
+   (Deploy CV_Form_Backend.gs as a Web App, "Execute as: Me",
+   "Who has access: Anyone", then paste the /exec URL below.)
+   ============================================================ */
+const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const MAX_JOBS = 6; // matches backend MAX_JOBS cap — keep in sync
+
+let jobCount = 0;
+let eduCount = 0;
+
+// ---------- Visa status: reveal "other" field ----------
+const visaStatus = document.getElementById('visaStatus');
+const visaOtherField = document.getElementById('visaOtherField');
+visaStatus.addEventListener('change', () => {
+  visaOtherField.style.display = visaStatus.value === 'Other' ? 'block' : 'none';
+});
+
+// ---------- Target role: cascading Industry > Sector > Role ----------
+// ---------- CV template picker ----------
+const templateOptions = document.querySelectorAll('.template-option');
+const cvTemplateHidden = document.getElementById('cvTemplate');
+templateOptions.forEach(opt => {
+  opt.addEventListener('click', () => {
+    templateOptions.forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    cvTemplateHidden.value = opt.dataset.template;
+    document.getElementById('templateField').classList.remove('has-error');
+  });
+});
+// Smart default: if they arrived via an "ATS" service, pre-select ATS Classic
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const svc = (params.get('service') || '').toLowerCase();
+  if (svc.includes('ats')){
+    const atsCard = document.querySelector('.template-option[data-template="ats-classic"]');
+    if (atsCard) atsCard.click();
+  }
+})();
+
+const responsibilitySuggestions = {
+  "HSE Officer": [
+    "Conducted daily site safety inspections and toolbox talks",
+    "Investigated incidents and near-misses, recommending corrective actions",
+    "Issued and monitored permits to work across active work sites",
+    "Delivered HSE inductions and toolbox talks to site personnel",
+    "Maintained HSE records, statistics, and audit documentation",
+    "Ensured compliance with client and regulatory HSE standards"
+  ],
+  "HSE Engineer": [
+    "Conducted risk assessments and HAZOP studies for site operations",
+    "Led incident investigations and root cause analysis",
+    "Reviewed and updated site HSE management plans and procedures",
+    "Coordinated emergency response drills and evacuation exercises",
+    "Monitored contractor compliance with HSE requirements"
+  ],
+  "Document Controller": [
+    "Managed document control processes using Aconex/SharePoint",
+    "Maintained version control and distribution logs for project documents",
+    "Coordinated document review and approval workflows with stakeholders",
+    "Ensured document numbering and filing complied with project standards",
+    "Prepared document status reports for project management"
+  ],
+  "Electrical Technician": [
+    "Performed installation, termination, and testing of electrical cabling",
+    "Carried out preventive and corrective maintenance on electrical systems",
+    "Diagnosed and resolved electrical faults to minimize downtime",
+    "Applied lockout/tagout procedures to ensure safe working conditions",
+    "Read and interpreted electrical drawings and schematics"
+  ],
+  "Job Performer / Supervisor": [
+    "Supervised work crews to ensure tasks were completed safely and on schedule",
+    "Issued and closed out permits to work in line with site procedures",
+    "Conducted toolbox talks and briefed teams on daily work scope",
+    "Coordinated with other trades to avoid work conflicts",
+    "Reported progress and issues to site management"
+  ],
+  "Civil Engineer": [
+    "Supervised civil construction activities to ensure quality and schedule compliance",
+    "Reviewed drawings and coordinated with design teams on technical queries",
+    "Conducted site inspections and quality checks against specifications",
+    "Prepared quantity take-offs and progress reports",
+    "Coordinated with subcontractors and suppliers on site activities"
+  ],
+  "QA/QC Inspector": [
+    "Conducted inspections and testing in line with project quality plans",
+    "Prepared inspection test plans (ITPs) and non-conformance reports",
+    "Verified materials and workmanship against project specifications",
+    "Coordinated third-party inspections and witnessed tests",
+    "Maintained quality records and documentation for audits"
+  ],
+  "Site Supervisor": [
+    "Supervised daily site activities to ensure safety, quality, and schedule targets",
+    "Coordinated manpower and resources across work fronts",
+    "Liaised with clients and subcontractors on site progress",
+    "Conducted toolbox talks and enforced site safety procedures",
+    "Reported daily progress and issues to project management"
+  ],
+  "Admin Assistant": [
+    "Managed scheduling, correspondence, and office documentation",
+    "Maintained accurate records and filing systems",
+    "Coordinated meetings and prepared minutes and reports",
+    "Handled data entry and document processing using MS Office",
+    "Assisted with procurement and inventory tracking"
+  ],
+  "Driver": [
+    "Operated company vehicles safely in compliance with traffic regulations",
+    "Conducted pre-trip and post-trip vehicle inspections",
+    "Maintained accurate trip logs and delivery records",
+    "Ensured timely and safe delivery of goods/passengers",
+    "Reported vehicle maintenance needs promptly"
+  ],
+  "Nurse": [
+    "Provided direct patient care and monitored vital signs",
+    "Administered medications and treatments as prescribed",
+    "Maintained accurate clinical documentation and patient records",
+    "Assisted physicians during examinations and procedures",
+    "Educated patients and families on care plans and follow-up"
+  ],
+  "Front Office": [
+    "Managed guest check-in/check-out and reservation processes",
+    "Handled guest inquiries and resolved complaints professionally",
+    "Coordinated with housekeeping and other departments on guest needs",
+    "Processed payments and maintained accurate cash handling records",
+    "Maintained front desk records and daily reports"
+  ],
+  "Warehouse Supervisor": [
+    "Supervised warehouse operations including receiving, storage, and dispatch",
+    "Maintained inventory accuracy through regular stock counts",
+    "Coordinated with logistics teams on shipment schedules",
+    "Enforced safety procedures for warehouse and forklift operations",
+    "Trained and supervised warehouse staff"
+  ],
+  "Production Operator": [
+    "Operated and monitored production equipment to meet output targets",
+    "Conducted routine quality checks during production runs",
+    "Followed safety and operating procedures at all times",
+    "Reported equipment malfunctions and production issues promptly",
+    "Maintained accurate production logs and records"
+  ],
+  "Mechanical Technician": [
+    "Performed preventive and corrective maintenance on mechanical equipment",
+    "Diagnosed mechanical faults and carried out repairs",
+    "Conducted alignment, balancing, and vibration checks on rotating equipment",
+    "Maintained maintenance records and spare parts inventory",
+    "Followed permit to work and safety procedures during maintenance activities"
+  ],
+  "Instrumentation Technician": [
+    "Calibrated and maintained instrumentation and control systems",
+    "Performed loop checks and troubleshooting on control loops",
+    "Read and interpreted P&IDs and instrument datasheets",
+    "Coordinated with process teams on instrumentation issues",
+    "Maintained calibration records and certificates"
+  ],
+  "MEP Engineer": [
+    "Coordinated MEP design and installation activities on site",
+    "Reviewed shop drawings and resolved technical clashes",
+    "Supervised MEP subcontractors to ensure quality and schedule compliance",
+    "Conducted site inspections of MEP installations",
+    "Liaised with consultants on MEP technical submittals"
+  ],
+  "Project Engineer": [
+    "Coordinated project activities across engineering, procurement, and construction",
+    "Monitored project schedule and reported progress to management",
+    "Reviewed technical submittals and resolved site queries",
+    "Coordinated with subcontractors and suppliers on deliverables",
+    "Prepared project documentation and progress reports"
+  ],
+  "Planning Engineer": [
+    "Developed and maintained project schedules using Primavera P6/MS Project",
+    "Monitored project progress and identified schedule risks",
+    "Prepared progress reports and schedule updates for stakeholders",
+    "Coordinated with site teams to track actual vs planned progress",
+    "Analyzed schedule delays and proposed recovery plans"
+  ]
+};
+const genericResponsibilities = [
+  "Carried out daily tasks in line with company procedures and standards",
+  "Coordinated with team members and supervisors to meet deadlines",
+  "Maintained accurate records and documentation of work performed",
+  "Ensured compliance with safety and quality requirements",
+  "Communicated progress and issues to management promptly"
+];
+
+const jobCategories = {
+  "Oil & Gas": {
+    "Downstream / Petrochemical": ["HSE Officer", "HSE Engineer", "Process Engineer", "Electrical Technician", "Instrumentation Technician", "Mechanical Technician", "Document Controller", "Job Performer / Supervisor", "Piping Engineer", "Civil Engineer"],
+    "Upstream": ["Drilling Engineer", "Production Operator", "Well Site Supervisor", "HSE Officer"],
+    "EPC / Projects": ["Project Engineer", "Planning Engineer", "QA/QC Inspector", "Commissioning Engineer", "HSE Officer", "Document Controller"]
+  },
+  "Construction": {
+    "Building & Infrastructure": ["Civil Engineer", "Site Supervisor", "QA/QC Inspector", "HSE Officer", "Foreman", "Surveyor"],
+    "MEP": ["MEP Engineer", "Electrical Technician", "HVAC Technician", "Plumbing Technician", "HSE Officer"],
+    "Roads & Bridges": ["Civil Engineer", "Site Engineer", "Surveyor", "HSE Officer"]
+  },
+  "Manufacturing": {
+    "Production": ["Production Operator", "Quality Controller", "Maintenance Technician", "HSE Officer"],
+    "Plant Engineering": ["Mechanical Engineer", "Electrical Engineer", "Process Engineer"]
+  },
+  "Hospitality": {
+    "Hotel Operations": ["Front Office", "Housekeeping", "F&B Service", "Chef"],
+    "Facilities": ["Maintenance Technician", "HSE Officer"]
+  },
+  "Logistics & Supply Chain": {
+    "Warehousing": ["Warehouse Supervisor", "Forklift Operator", "Inventory Controller"],
+    "Transport": ["Driver", "Fleet Supervisor", "Logistics Coordinator"]
+  },
+  "Healthcare": {
+    "Clinical": ["Nurse", "Paramedic", "Lab Technician"],
+    "Admin": ["Medical Receptionist", "Health Records Officer"]
+  },
+  "Facilities Management": {
+    "Hard FM": ["Electrical Technician", "HVAC Technician", "Plumbing Technician"],
+    "Soft FM": ["Cleaning Supervisor", "Landscaping Supervisor"]
+  },
+  "IT & Admin": {
+    "Office Support": ["Document Controller", "Admin Assistant", "Data Entry Clerk"],
+    "IT": ["IT Support", "Network Technician"]
+  }
+};
+
+const industrySelect = document.getElementById('industry');
+const sectorSelect = document.getElementById('sector');
+const roleSelect = document.getElementById('specificRole');
+const roleOtherField = document.getElementById('roleOtherField');
+
+function fillSelect(select, options, placeholder){
+  select.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+  options.forEach(opt => {
+    const el = document.createElement('option');
+    el.value = opt;
+    el.textContent = opt;
+    select.appendChild(el);
+  });
+  const otherEl = document.createElement('option');
+  otherEl.value = 'Other';
+  otherEl.textContent = 'Other';
+  select.appendChild(otherEl);
+}
+
+fillSelect(industrySelect, Object.keys(jobCategories), 'Select an industry');
+
+industrySelect.addEventListener('change', () => {
+  roleOtherField.style.display = 'none';
+  if (industrySelect.value === 'Other'){
+    sectorSelect.disabled = true;
+    roleSelect.disabled = true;
+    sectorSelect.innerHTML = `<option value="" disabled selected>N/A</option>`;
+    roleSelect.innerHTML = `<option value="" disabled selected>N/A</option>`;
+    roleOtherField.style.display = 'block';
+    return;
+  }
+  const sectors = Object.keys(jobCategories[industrySelect.value]);
+  fillSelect(sectorSelect, sectors, 'Select a sector');
+  sectorSelect.disabled = false;
+  roleSelect.disabled = true;
+  roleSelect.innerHTML = `<option value="" disabled selected>Select a sector first</option>`;
+});
+
+sectorSelect.addEventListener('change', () => {
+  roleOtherField.style.display = 'none';
+  if (sectorSelect.value === 'Other'){
+    roleSelect.disabled = true;
+    roleSelect.innerHTML = `<option value="" disabled selected>N/A</option>`;
+    roleOtherField.style.display = 'block';
+    return;
+  }
+  const roles = jobCategories[industrySelect.value][sectorSelect.value];
+  fillSelect(roleSelect, roles, 'Select a role');
+  roleSelect.disabled = false;
+});
+
+roleSelect.addEventListener('change', () => {
+  roleOtherField.style.display = roleSelect.value === 'Other' ? 'block' : 'none';
+  refreshSuggestions();
+});
+document.getElementById('roleOther').addEventListener('blur', refreshSuggestions);
+
+// ---------- Skill suggestions based on chosen role ----------
+const skillSuggestions = {
+  "HSE Officer": ["Risk Assessment", "Incident Investigation", "Toolbox Talks", "Permit to Work", "HSE Audits", "NEBOSH IGC"],
+  "HSE Engineer": ["Risk Assessment", "HAZOP", "HSE Audits", "Incident Investigation", "Permit to Work", "Root Cause Analysis"],
+  "Process Engineer": ["Process Optimization", "P&ID Review", "HAZOP", "Root Cause Analysis"],
+  "Electrical Technician": ["Cable Termination", "Panel Wiring", "Troubleshooting", "Preventive Maintenance", "LOTO Procedures"],
+  "Instrumentation Technician": ["Calibration", "Loop Checking", "PLC Basics", "Troubleshooting", "P&ID Reading"],
+  "Mechanical Technician": ["Preventive Maintenance", "Rotating Equipment", "Troubleshooting", "Alignment & Balancing"],
+  "Document Controller": ["Document Control", "Aconex", "SharePoint", "Version Control", "Filing Systems", "MS Office"],
+  "Job Performer / Supervisor": ["Permit to Work", "Team Supervision", "Toolbox Talks", "Risk Assessment"],
+  "Piping Engineer": ["P&ID Review", "Pipe Stress Analysis", "AutoCAD", "Isometric Drawings"],
+  "Civil Engineer": ["AutoCAD", "Site Supervision", "Quantity Surveying", "Quality Control"],
+  "Drilling Engineer": ["Well Planning", "Drilling Fluids", "Rig Operations"],
+  "Production Operator": ["Process Monitoring", "Permit to Work", "Equipment Troubleshooting"],
+  "Well Site Supervisor": ["Team Supervision", "Permit to Work", "Well Operations"],
+  "Project Engineer": ["Project Planning", "MS Project", "Stakeholder Coordination"],
+  "Planning Engineer": ["Primavera P6", "MS Project", "Progress Reporting"],
+  "QA/QC Inspector": ["Quality Control", "Inspection & Testing", "ITP Preparation", "Non-Conformance Reporting"],
+  "Commissioning Engineer": ["Commissioning Procedures", "Punch List Management", "System Testing"],
+  "Site Supervisor": ["Team Supervision", "Site Coordination", "Quality Control", "HSE Compliance"],
+  "Foreman": ["Team Supervision", "Site Coordination", "Manpower Planning"],
+  "Surveyor": ["Total Station", "AutoCAD", "Land Surveying", "GPS Surveying"],
+  "MEP Engineer": ["MEP Coordination", "AutoCAD", "Revit", "Shop Drawings"],
+  "HVAC Technician": ["AC Installation", "Duct Work", "Preventive Maintenance", "Troubleshooting"],
+  "Plumbing Technician": ["Pipe Fitting", "Leak Detection", "Preventive Maintenance"],
+  "Site Engineer": ["Site Supervision", "AutoCAD", "Quality Control"],
+  "Production Operator ": ["Process Monitoring", "Quality Control", "Machine Operation"],
+  "Quality Controller": ["Quality Control", "Inspection & Testing", "ISO Standards"],
+  "Maintenance Technician": ["Preventive Maintenance", "Troubleshooting", "Equipment Repair"],
+  "Mechanical Engineer": ["Rotating Equipment", "AutoCAD", "Root Cause Analysis"],
+  "Electrical Engineer": ["Electrical Design", "AutoCAD", "Load Calculations"],
+  "Front Office": ["Guest Relations", "Reservations", "Opera PMS", "Customer Service"],
+  "Housekeeping": ["Room Inspection", "Inventory Management", "Guest Service"],
+  "F&B Service": ["Customer Service", "POS Systems", "Order Management"],
+  "Chef": ["Menu Planning", "Food Safety", "Kitchen Management", "HACCP"],
+  "Warehouse Supervisor": ["Inventory Management", "Team Supervision", "WMS Systems"],
+  "Forklift Operator": ["Forklift Operation", "Safety Compliance", "Inventory Handling"],
+  "Inventory Controller": ["Inventory Management", "Stock Reconciliation", "WMS Systems"],
+  "Driver": ["Defensive Driving", "Route Planning", "Vehicle Maintenance"],
+  "Fleet Supervisor": ["Fleet Management", "Route Planning", "Team Supervision"],
+  "Logistics Coordinator": ["Shipment Coordination", "Inventory Management", "Supply Chain Planning"],
+  "Nurse": ["Patient Care", "Clinical Documentation", "Vital Signs Monitoring"],
+  "Paramedic": ["Emergency Response", "Patient Assessment", "First Aid"],
+  "Lab Technician": ["Sample Testing", "Lab Equipment Handling", "Quality Control"],
+  "Medical Receptionist": ["Patient Scheduling", "Medical Records", "Customer Service"],
+  "Health Records Officer": ["Medical Records Management", "Data Entry", "HIPAA Compliance"],
+  "Cleaning Supervisor": ["Team Supervision", "Quality Inspection", "Inventory Management"],
+  "Landscaping Supervisor": ["Team Supervision", "Irrigation Systems", "Landscape Maintenance"],
+  "Admin Assistant": ["MS Office", "Scheduling", "Data Entry", "Filing Systems"],
+  "Data Entry Clerk": ["Data Entry", "MS Excel", "Attention to Detail"],
+  "IT Support": ["Troubleshooting", "Hardware/Software Support", "Networking Basics"],
+  "Network Technician": ["Network Configuration", "Troubleshooting", "Cisco Basics"]
+};
+const genericSuggestions = ["Teamwork", "Communication", "Time Management", "MS Office", "Problem Solving"];
+
+const suggestionsWrap = document.getElementById('suggestionsWrap');
+const suggestionChips = document.getElementById('suggestionChips');
+
+function refreshSuggestions(){
+  let roleKey = roleSelect.value && roleSelect.value !== 'Other' ? roleSelect.value : null;
+  const list = (roleKey && skillSuggestions[roleKey]) ? skillSuggestions[roleKey] : genericSuggestions;
+  suggestionChips.innerHTML = '';
+  list.forEach(skill => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'suggestion-chip';
+    chip.innerHTML = `<i class="fas fa-plus"></i> ${escapeHTML(skill)}`;
+    if (skills.includes(skill)) chip.classList.add('added');
+    chip.addEventListener('click', () => {
+      if (!skills.includes(skill)){
+        addSkill(skill);
+        refreshSuggestions();
+      }
+    });
+    suggestionChips.appendChild(chip);
+  });
+  suggestionsWrap.style.display = 'block';
+  refreshAllJobSuggestions();
+}
+
+// ---------- Suggested responsibilities per job entry, based on the chosen target role ----------
+function refreshAllJobSuggestions(){
+  const roleKey = roleSelect.value && roleSelect.value !== 'Other' ? roleSelect.value : null;
+  const list = (roleKey && responsibilitySuggestions[roleKey]) ? responsibilitySuggestions[roleKey] : genericResponsibilities;
+  document.querySelectorAll('.job-suggestions-wrap').forEach(wrap => {
+    const entry = wrap.closest('.entry');
+    const textarea = entry.querySelector('.job-desc');
+    const chipsBox = wrap.querySelector('.job-suggestion-chips');
+    chipsBox.innerHTML = '';
+    list.forEach(line => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'suggestion-chip';
+      chip.innerHTML = `<i class="fas fa-plus"></i> ${escapeHTML(line)}`;
+      const alreadyAdded = textarea.value.split(/\r?\n/).map(l => l.trim()).includes(line);
+      if (alreadyAdded) chip.classList.add('added');
+      chip.addEventListener('click', () => {
+        const currentLines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (!currentLines.includes(line)){
+          textarea.value = currentLines.concat(line).join('\n');
+          updateBulletCount(textarea);
+          refreshAllJobSuggestions();
+        }
+      });
+      chipsBox.appendChild(chip);
+    });
+    wrap.style.display = 'block';
+  });
+}
+
+// ---------- Scroll-reactive color wash (smooth continuous morph) ----------
+const scrollWash = document.getElementById('scrollWash');
+const washPalette = [
+  ['#64A1FF', '#8BFCFE'], // sky
+  ['#9ABDEB', '#80F9B7'], // mint
+  ['#F095FF', '#F64848'], // berry
+  ['#FC7B7B', '#A6C1FF'], // sunset
+  ['#D278F2', '#FCC989']  // citrus
+];
+function hexToRgb(hex){
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function lerpColor(a, b, t){
+  const c1 = hexToRgb(a), c2 = hexToRgb(b);
+  const r = Math.round(c1[0] + (c2[0]-c1[0])*t);
+  const g = Math.round(c1[1] + (c2[1]-c1[1])*t);
+  const bl = Math.round(c1[2] + (c2[2]-c1[2])*t);
+  return `rgb(${r},${g},${bl})`;
+}
+function updateWash(){
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollableHeight > 0 ? Math.min(Math.max(window.scrollY / scrollableHeight, 0), 1) : 0;
+  const segments = washPalette.length - 1;
+  const pos = progress * segments;
+  const idx = Math.min(Math.floor(pos), segments - 1);
+  const t = pos - idx;
+  const c1 = lerpColor(washPalette[idx][0], washPalette[idx+1][0], t);
+  const c2 = lerpColor(washPalette[idx][1], washPalette[idx+1][1], t);
+  scrollWash.style.background = `radial-gradient(circle at 25% 15%, ${c1}, transparent 55%), radial-gradient(circle at 80% 85%, ${c2}, transparent 55%)`;
+}
+let washTicking = false;
+window.addEventListener('scroll', () => {
+  if (!washTicking){
+    requestAnimationFrame(() => { updateWash(); washTicking = false; });
+    washTicking = true;
+  }
+});
+updateWash();
+
+// ---------- Theme toggle (light / dark) ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const savedTheme = localStorage.getItem('cvform-theme');
+if (savedTheme === 'dark'){
+  document.body.classList.add('dark');
+  themeIcon.className = 'fas fa-sun';
+}
+themeToggle.addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark');
+  themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  localStorage.setItem('cvform-theme', isDark ? 'dark' : 'light');
+});
+
+// ---------- Skills — infinite tag input ----------
+let skills = [];
+const skillInput = document.getElementById('skillInput');
+const skillsBox = document.getElementById('skillsBox');
+const skillsHidden = document.getElementById('skills');
+const skillsCount = document.getElementById('skillsCount');
+
+function renderSkills(){
+  skillsBox.querySelectorAll('.skill-chip').forEach(chip => chip.remove());
+  skills.forEach((skill, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'skill-chip';
+    chip.innerHTML = `${escapeHTML(skill)} <button type="button" aria-label="Remove ${escapeHTML(skill)}"><i class="fas fa-times"></i></button>`;
+    chip.querySelector('button').addEventListener('click', () => {
+      skills.splice(i, 1);
+      renderSkills();
+    });
+    skillsBox.insertBefore(chip, skillInput);
+  });
+  skillsHidden.value = skills.join(', ');
+  skillsCount.textContent = skills.length
+    ? `${skills.length} skill${skills.length === 1 ? '' : 's'} added — feel free to leave the rest to us`
+    : `No skills added — that's okay, we'll add relevant ones for your role`;
+  skillsCount.style.color = 'var(--hint)';
+  document.getElementById('skillsField').classList.toggle('has-error', false);
+}
+
+function addSkill(raw){
+  raw.split(',').forEach(part => {
+    const s = part.trim();
+    if (s && !skills.includes(s)) skills.push(s);
+  });
+  renderSkills();
+}
+
+function escapeHTML(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+skillInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ','){
+    e.preventDefault();
+    if (skillInput.value.trim()){
+      addSkill(skillInput.value);
+      skillInput.value = '';
+    }
+  } else if (e.key === 'Backspace' && !skillInput.value && skills.length){
+    skills.pop();
+    renderSkills();
+  }
+});
+skillInput.addEventListener('blur', () => {
+  if (skillInput.value.trim()){
+    addSkill(skillInput.value);
+    skillInput.value = '';
+  }
+});
+skillsBox.addEventListener('click', e => {
+  if (e.target === skillsBox) skillInput.focus();
+});
+document.getElementById('skillAddBtn').addEventListener('click', () => {
+  if (skillInput.value.trim()){
+    addSkill(skillInput.value);
+    skillInput.value = '';
+  }
+  skillInput.focus();
+});
+
+function jobEntryHTML(n){
+  return `
+    <div class="entry" data-job="${n}">
+      <span class="entry-num">Job ${n}</span>
+      ${n > 1 ? `<button type="button" class="remove-entry" aria-label="Remove"><i class="fas fa-times"></i></button>` : ''}
+      <div class="row">
+        <div class="field">
+          <label>Job title</label>
+          <input type="text" name="jobTitle_${n}">
+        </div>
+        <div class="field">
+          <label>Company</label>
+          <input type="text" name="company_${n}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Start date</label>
+          <input type="month" name="startDate_${n}">
+        </div>
+        <div class="field">
+          <label>End date <span class="hint">(leave blank if current)</span></label>
+          <input type="month" name="endDate_${n}">
+        </div>
+      </div>
+      <div class="field">
+        <label>Key responsibilities & achievements <span class="hint">(optional — jot down a few if you can, we'll write the rest based on your role)</span></label>
+        <textarea name="description_${n}" class="job-desc" oninput="updateBulletCount(this)"></textarea>
+        <div class="bullet-count" style="font-size:.75rem;color:var(--hint);margin-top:.3rem;">No details added — that's fine, we'll fill this in for you</div>
+        <div class="job-suggestions-wrap" data-job-suggestions="${n}" style="display:none;margin-top:.6rem;">
+          <div class="suggestions-label"><i class="fas fa-lightbulb icon-bounce"></i> Common tasks for this role — tap to add</div>
+          <div class="suggestion-chips job-suggestion-chips"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function eduEntryHTML(n){
+  return `
+    <div class="entry" data-edu="${n}">
+      <span class="entry-num">Item ${n}</span>
+      ${n > 1 ? `<button type="button" class="remove-entry" aria-label="Remove"><i class="fas fa-times"></i></button>` : ''}
+      <div class="field">
+        <label>Education level</label>
+        <select name="eduLevel_${n}">
+          <option value="" disabled selected>Select a level</option>
+          <option value="High School">High School</option>
+          <option value="Certificate">Certificate</option>
+          <option value="Diploma">Diploma</option>
+          <option value="Bachelor's Degree">Bachelor's Degree</option>
+          <option value="Master's Degree">Master's Degree</option>
+          <option value="Doctorate / PhD">Doctorate / PhD</option>
+          <option value="Professional Certification">Professional Certification (e.g. NEBOSH, PMP)</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Qualification title <span class="hint">(e.g. Bachelor of Science in Civil Engineering)</span></label>
+          <input type="text" name="degree_${n}">
+        </div>
+        <div class="field">
+          <label>Institution <span class="hint">(exact name if you know it)</span></label>
+          <input type="text" name="school_${n}">
+        </div>
+      </div>
+      <div class="field">
+        <label>Year completed</label>
+        <input type="text" name="gradYear_${n}" placeholder="e.g. 2022" pattern="[0-9]{4}">
+      </div>
+    </div>`;
+}
+
+function refreshJobUI(){
+  const btn = document.getElementById('addJobBtn');
+  const note = document.getElementById('jobCapNote');
+  btn.disabled = jobCount >= MAX_JOBS;
+  note.textContent = jobCount >= MAX_JOBS
+    ? `Maximum of ${MAX_JOBS} jobs reached.`
+    : `${jobCount} of ${MAX_JOBS} added.`;
+}
+
+function addJob(){
+  if (jobCount >= MAX_JOBS) return;
+  jobCount++;
+  document.getElementById('jobsContainer').insertAdjacentHTML('beforeend', jobEntryHTML(jobCount));
+  refreshJobUI();
+  refreshAllJobSuggestions();
+}
+
+function addEdu(){
+  eduCount++;
+  document.getElementById('eduContainer').insertAdjacentHTML('beforeend', eduEntryHTML(eduCount));
+}
+
+document.getElementById('addJobBtn').addEventListener('click', addJob);
+document.getElementById('addEduBtn').addEventListener('click', addEdu);
+
+// Event delegation for remove buttons
+document.getElementById('jobsContainer').addEventListener('click', e => {
+  const btn = e.target.closest('.remove-entry');
+  if (!btn) return;
+  btn.closest('.entry').remove();
+  jobCount--;
+  renumber('jobsContainer', 'job', 'Job');
+  refreshJobUI();
+});
+document.getElementById('eduContainer').addEventListener('click', e => {
+  const btn = e.target.closest('.remove-entry');
+  if (!btn) return;
+  btn.closest('.entry').remove();
+  eduCount--;
+  renumber('eduContainer', 'edu', 'Item');
+});
+
+// Renumber remaining entries after a removal so field names stay 1..n
+function renumber(containerId, attr, label){
+  const container = document.getElementById(containerId);
+  const entries = [...container.children];
+  entries.forEach((entry, i) => {
+    const n = i + 1;
+    entry.setAttribute(`data-${attr}`, n);
+    entry.querySelector('.entry-num').textContent = `${label} ${n}`;
+    entry.querySelectorAll('input, textarea, select').forEach(field => {
+      field.name = field.name.replace(/_\d+$/, `_${n}`);
+    });
+  });
+  if (attr === 'job') jobCount = entries.length;
+  if (attr === 'edu') eduCount = entries.length;
+}
+
+// Seed one job + one education entry to start
+addJob();
+addEdu();
+
+// ---------- Validation ----------
+function updateBulletCount(textarea){
+  const lines = textarea.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const counter = textarea.closest('.field').querySelector('.bullet-count');
+  if (!textarea.value.trim()){
+    counter.textContent = "No details added — that's fine, we'll fill this in for you";
+  } else {
+    counter.textContent = `${lines.length} line${lines.length === 1 ? '' : 's'} added — thanks, this helps us tailor it`;
+  }
+  counter.style.color = 'var(--hint)';
+}
+
+function validateField(field){
+  const wrap = field.closest('.field, .checkbox-field');
+  const valid = field.checkValidity();
+  if (wrap) wrap.classList.toggle('has-error', !valid);
+  return valid;
+}
+
+function validateForm(){
+  const required = document.querySelectorAll('#cvForm [required]');
+  let ok = true;
+  required.forEach(f => { if (!validateField(f)) ok = false; });
+  return ok;
+}
+
+document.querySelectorAll('#cvForm [required]').forEach(f => {
+  f.addEventListener('blur', () => validateField(f));
+});
+
+// Convert a File object to {name, mimeType, data (base64)}
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      name: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      data: reader.result.split(',')[1]
+    });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------- Certificates: infinite uploads with thumbnails ----------
+let uploadedFiles = []; // accumulates across multiple picks, since a native input replaces its selection each time
+const certFilesInput = document.getElementById('certFiles');
+const fileGrid = document.getElementById('fileGrid');
+const fileCountEl = document.getElementById('fileCount');
+const addMoreFilesBtn = document.getElementById('addMoreFilesBtn');
+
+function fileIconFor(file){
+  if (file.type === 'application/pdf') return 'fa-file-pdf';
+  return 'fa-file';
+}
+
+function renderFiles(){
+  fileGrid.innerHTML = '';
+  uploadedFiles.forEach((file, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'file-thumb';
+
+    if (file.type.startsWith('image/')){
+      const img = document.createElement('img');
+      const reader = new FileReader();
+      reader.onload = () => { img.src = reader.result; };
+      reader.readAsDataURL(file);
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = `<i class="fas ${fileIconFor(file)} file-icon"></i>`;
+    }
+
+    const orderBadge = document.createElement('div');
+    orderBadge.className = 'file-order-badge';
+    orderBadge.textContent = i + 1;
+    thumb.appendChild(orderBadge);
+
+    const nameTag = document.createElement('div');
+    nameTag.className = 'file-name';
+    nameTag.textContent = file.name;
+    thumb.appendChild(nameTag);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-file';
+    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    removeBtn.addEventListener('click', () => {
+      uploadedFiles.splice(i, 1);
+      renderFiles();
+    });
+    thumb.appendChild(removeBtn);
+
+    if (uploadedFiles.length > 1){
+      const reorderBar = document.createElement('div');
+      reorderBar.className = 'file-reorder-bar';
+      if (i > 0){
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        upBtn.addEventListener('click', () => {
+          [uploadedFiles[i-1], uploadedFiles[i]] = [uploadedFiles[i], uploadedFiles[i-1]];
+          renderFiles();
+        });
+        reorderBar.appendChild(upBtn);
+      }
+      if (i < uploadedFiles.length - 1){
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+        downBtn.addEventListener('click', () => {
+          [uploadedFiles[i], uploadedFiles[i+1]] = [uploadedFiles[i+1], uploadedFiles[i]];
+          renderFiles();
+        });
+        reorderBar.appendChild(downBtn);
+      }
+      thumb.appendChild(reorderBar);
+    }
+
+    fileGrid.appendChild(thumb);
+  });
+  fileCountEl.textContent = uploadedFiles.length
+    ? `${uploadedFiles.length} file${uploadedFiles.length === 1 ? '' : 's'} added — use the arrows to set review order`
+    : 'No files added yet';
+}
+
+certFilesInput.addEventListener('change', () => {
+  [...certFilesInput.files].forEach(f => {
+    const isDupe = uploadedFiles.some(existing => existing.name === f.name && existing.size === f.size);
+    if (!isDupe) uploadedFiles.push(f);
+  });
+  certFilesInput.value = ''; // allow re-selecting the same file later if removed
+  renderFiles();
+});
+
+addMoreFilesBtn.addEventListener('click', () => certFilesInput.click());
+
+// ---------- Submit ----------
+document.getElementById('cvForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  // Flush any skill still sitting in the input box before validating
+  if (skillInput.value.trim()){
+    addSkill(skillInput.value);
+    skillInput.value = '';
+  }
+
+  const statusBox = document.getElementById('statusBox');
+  statusBox.className = 'status';
+  statusBox.textContent = '';
+
+  if (!validateForm()){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Please fill in the required fields highlighted above.';
+    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  if (SCRIPT_URL.includes('PASTE_YOUR')){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Form isn\'t connected yet — add your Apps Script Web App URL in the SCRIPT_URL constant.';
+    return;
+  }
+
+  const gooeyWrapper = document.getElementById('gooeyWrapper');
+  const btn = document.getElementById('submitBtn');
+  const submitText = document.getElementById('submitText');
+
+  btn.disabled = true;
+  gooeyWrapper.classList.remove('success', 'error');
+  gooeyWrapper.classList.add('loading');
+
+  try{
+    // Collect all text/date fields
+    const form = document.getElementById('cvForm');
+    const payload = {};
+    form.querySelectorAll('input:not([type="file"]), textarea, select').forEach(field => {
+      if (!field.name) return;
+      // Checkboxes report .value as "on" regardless of checked state — read .checked instead
+      payload[field.name] = (field.type === 'checkbox') ? (field.checked ? 'Yes' : 'No') : field.value;
+    });
+
+    // Convert accumulated file uploads to base64
+    payload.files = await Promise.all(
+      uploadedFiles.map(fileToBase64)
+    );
+
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      // text/plain avoids a CORS preflight that Apps Script doesn't handle
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
+    const result = await res.json();
+    if (result.status !== 'success') throw new Error(result.message || 'Unknown error');
+
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('success');
+
+    statusBox.className = 'status ok';
+    statusBox.textContent = "Thank you for submitting your request! We're working on it and will get back to you with feedback as soon as your CV is ready. Check your email for a confirmation too.";
+    submitText.textContent = 'Submitted';
+    document.getElementById('cvForm').reset();
+
+    // Native reset() doesn't touch JS-managed state — clear it manually
+    skills = [];
+    renderSkills();
+    document.getElementById('jobsContainer').innerHTML = '';
+    document.getElementById('eduContainer').innerHTML = '';
+    jobCount = 0;
+    eduCount = 0;
+    addJob();
+    addEdu();
+    uploadedFiles = [];
+    renderFiles();
+    sectorSelect.disabled = true;
+    roleSelect.disabled = true;
+    sectorSelect.innerHTML = `<option value="" disabled selected>Select an industry first</option>`;
+    roleSelect.innerHTML = `<option value="" disabled selected>Select a sector first</option>`;
+    suggestionsWrap.style.display = 'none';
+    visaOtherField.style.display = 'none';
+    roleOtherField.style.display = 'none';
+
+  } catch(err){
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('error');
+    setTimeout(() => gooeyWrapper.classList.remove('error'), 1500);
+
+    statusBox.className = 'status err';
+    statusBox.textContent = `Something went wrong: ${err.message}. Try again, or send your details directly.`;
+    submitText.textContent = 'Submit my details';
+    btn.disabled = false;
+  } finally {
+    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+</script>
+</body>
+</html>
