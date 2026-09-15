@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-<style>
   :root{
     --ink:#12212e;
     --paper:#f6f3ec;
@@ -809,7 +808,8 @@
   .close-modal:hover{color:var(--ink);}
   .modal h2{font-family:'Fraunces',serif;margin-top:0;color:var(--brass);}
   .modal p, .modal ul{font-size:.9rem;line-height:1.6;}
-</style>
+
+  .hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;}
 
   /* Payslip-specific */
   .payslip-row{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:end;margin-bottom:.7rem;}
@@ -873,6 +873,7 @@
   </header>
 
   <form id="payslipForm" novalidate>
+    <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
     <input type="hidden" name="formType" value="payslip">
 
     <div class="card">

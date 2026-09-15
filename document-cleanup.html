@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-<style>
   :root{
     --ink:#12212e;
     --paper:#f6f3ec;
@@ -809,7 +808,8 @@
   .close-modal:hover{color:var(--ink);}
   .modal h2{font-family:'Fraunces',serif;margin-top:0;color:var(--brass);}
   .modal p, .modal ul{font-size:.9rem;line-height:1.6;}
-</style>
+
+  .hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;}
 
 </style>
 </head>
@@ -859,10 +859,11 @@
     </svg>
     <h1>KINETIX</h1>
     <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
-    <p>Document cleanup  send us the messy version, get back a clean one.</p>
+    <p>Document cleanup — send us the messy version, get back a clean one.</p>
   </header>
 
   <form id="cleanupForm" novalidate>
+    <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
     <input type="hidden" name="formType" value="document-cleanup">
 
     <div class="card">
@@ -983,7 +984,7 @@
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCMgsg6QGNKcrdCfjCMGt1N_6bFsC7mTl0IQe9Hzolw0OqfkNcCG3P0dfcBR8H--Gx5g/exec";
+const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 document.getElementById('docType').addEventListener('change', function(){
   document.getElementById('docTypeOtherField').style.display = this.value === 'Other' ? 'block' : 'none';
 });

@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KINETIX — Request a Revision</title>
+<meta name="robots" content="noindex, nofollow">
+<title>KINETIX — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -809,12 +810,37 @@
   .modal h2{font-family:'Fraunces',serif;margin-top:0;color:var(--brass);}
   .modal p, .modal ul{font-size:.9rem;line-height:1.6;}
 
-  .hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;}
 
+  .admin-gate{max-width:340px;margin:4rem auto;text-align:center;}
+  .pipeline-cols{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:820px){.pipeline-cols{grid-template-columns:1fr 1fr 1fr;}}
+  .pipeline-col h3{
+    font-family:'Fraunces',serif;font-size:1rem;margin:0 0 .8rem;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .pipeline-col .count-badge{
+    background:var(--chip-bg);color:var(--brass-dark);font-size:.7rem;font-weight:700;
+    padding:.15rem .5rem;border-radius:20px;margin-left:auto;
+  }
+  .order-card{
+    border:1.5px solid var(--line);border-radius:10px;padding:.8rem .9rem;
+    margin-bottom:.6rem;background:var(--field-bg);font-size:.82rem;
+  }
+  .order-card .order-ref{font-weight:700;color:var(--brass-dark);}
+  .order-card .order-name{font-weight:600;margin:.2rem 0;}
+  .order-card .order-meta{color:var(--hint);font-size:.72rem;}
+  .order-card .pay-tag{
+    display:inline-block;font-size:.68rem;font-weight:700;padding:.1rem .45rem;
+    border-radius:10px;margin-top:.4rem;
+  }
+  .pay-tag.confirmed{background:rgba(47,111,79,0.15);color:var(--ok);}
+  .pay-tag.pending{background:rgba(179,69,46,0.12);color:var(--err);}
+  .admin-refresh{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;
+  }
 </style>
 </head>
 <body>
-<div class="scroll-wash" id="scrollWash"></div>
 <nav class="kinetix-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
@@ -825,11 +851,7 @@
       </svg>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="index.html" class="nav-link" data-page="index">Rates</a>
-      <a href="intake.html" class="nav-link" data-page="intake">Submit</a>
-      <a href="other-services.html" class="nav-link" data-page="more">More</a>
-      <a href="https://wa.me/971544564191" target="_blank" class="nav-link" data-page="contact">Contact</a>
-      <span class="nav-liquid" id="navLiquid"></span>
+      <span class="nav-link" style="color:var(--muted);cursor:default;">Admin Dashboard</span>
     </div>
     <button type="button" class="nav-theme-btn" id="themeToggle" aria-label="Toggle dark and light mode">
       <i class="fas fa-moon" id="themeIcon"></i>
@@ -837,192 +859,32 @@
   </div>
 </nav>
 
-<a href="https://wa.me/971544564191" class="whatsapp-float" target="_blank" aria-label="Contact us on WhatsApp">
-  <i class="fab fa-whatsapp"></i>
-</a>
+<div class="wrap" style="max-width:900px;">
 
-<div class="wrap">
-  <header class="hero">
-    <svg class="kinetix-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KINETIX logo">
-      <defs>
-        <linearGradient id="kGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
-          <stop offset="0%" stop-color="#64A1FF"/>
-          <stop offset="50%" stop-color="#80F9B7"/>
-          <stop offset="100%" stop-color="#64A1FF"/>
-          <animate attributeName="x1" values="-200;200;-200" dur="4s" repeatCount="indefinite"/>
-          <animate attributeName="x2" values="0;400;0" dur="4s" repeatCount="indefinite"/>
-        </linearGradient>
-      </defs>
-      <g stroke="url(#kGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
-      </g>
-    </svg>
-    <h1>KINETIX</h1>
-    <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
-    <p>Need a change to something we delivered? Free within 3 days of delivery for minor fixes.</p>
-  </header>
-
-  <form id="revisionForm" novalidate>
-    <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <input type="hidden" name="formType" value="revision">
-
-    <div class="card">
-      <h2><i class="fas fa-hashtag"></i> Your original order</h2>
-      <div class="field">
-        <label for="originalReference">Reference number <span class="hint">(from your confirmation email, e.g. KTX-0042)</span></label>
-        <input type="text" id="originalReference" name="originalReference" required>
-        <div class="error-msg">Enter your original order's reference number.</div>
-      </div>
+  <div class="admin-gate card" id="gateCard">
+    <h2 style="justify-content:center;"><i class="fas fa-lock"></i> Admin access</h2>
+    <div class="field">
+      <label for="adminKeyInput">Admin key</label>
+      <input type="password" id="adminKeyInput" placeholder="Enter your admin key">
     </div>
-
-    <div class="card">
-      <h2><i class="fas fa-user"></i> Your details</h2>
-      <div class="field">
-        <label for="fullName">Full name</label>
-        <input type="text" id="fullName" name="fullName" required>
-        <div class="error-msg">Enter your name.</div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label for="clientPhone">Phone / WhatsApp</label>
-          <input type="tel" id="clientPhone" name="clientPhone" required>
-          <div class="error-msg">Enter a phone number.</div>
-        </div>
-        <div class="field">
-          <label for="clientEmail">Email</label>
-          <input type="email" id="clientEmail" name="clientEmail" required>
-          <div class="error-msg">Enter a valid email.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2><i class="fas fa-pen"></i> What needs changing?</h2>
-      <div class="field">
-        <textarea id="revisionNotes" name="revisionNotes" rows="5" required placeholder="Be as specific as you can — e.g. 'Fix typo in job title on page 1' or 'Update phone number in header'"></textarea>
-        <div class="error-msg">Tell us what needs to change.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2><i class="fas fa-paperclip"></i> Attach anything helpful <span class="hint" style="font-weight:400;font-size:.75rem;">(optional)</span></h2>
-      <label class="dropzone" id="dropzone">
-        <i class="fas fa-cloud-arrow-up icon-bounce"></i>
-        <div class="dz-text">Tap to choose files</div>
-        <div class="dz-hint">Screenshots, marked-up PDFs, updated info</div>
-        <input type="file" id="refFiles" multiple accept=".pdf,.jpg,.jpeg,.png">
-      </label>
-      <div class="file-grid" id="fileGrid"></div>
-      <div class="file-count" id="fileCount">No files added yet</div>
-      <button type="button" class="glossy-btn" id="addMoreFilesBtn" style="margin-top:.9rem;">
-        <i class="fas fa-plus"></i> Add more files
-      </button>
-    </div>
-
-    <div class="checkbox-field">
-      <input type="checkbox" id="legalCheck" name="legalCheck" required>
-      <label for="legalCheck">
-        I agree to the <a onclick="openModal('privacyModal')">Privacy Policy</a> and <a onclick="openModal('termsModal')">Terms of Service</a>.
-      </label>
-    </div>
-
-    <div class="gooey-wrapper" id="gooeyWrapper">
-      <button type="submit" class="gooey-submit" id="submitBtn">
-        <span id="submitText">Submit revision request</span>
-      </button>
-      <div class="gooey-loader-wrap">
-        <span class="gooey-dot dot-sky"></span>
-        <span class="gooey-dot dot-mint"></span>
-        <span class="gooey-dot dot-berry"></span>
-      </div>
-      <div class="gooey-check-wrap">
-        <svg viewBox="0 0 64.5 37.4"><polyline class="gooey-check" points="5,13 21.8,32.4 59.5,5"/></svg>
-      </div>
-    </div>
-    <div class="status" id="statusBox"></div>
-  </form>
-
-  <footer class="footer">
-    <div class="footer-links">
-      <button type="button" onclick="openModal('privacyModal')">Privacy Policy</button>
-      <button type="button" onclick="openModal('termsModal')">Terms of Service</button>
-    </div>
-    <p>
-      <i class="fas fa-envelope"></i> maxmeely@pm.me<br>
-      <i class="fab fa-whatsapp"></i> +971 54 456 4191<br><br>
-      © 2026 All Rights Reserved.
-    </p>
-  </footer>
-</div>
-
-<div id="privacyModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
-    <h2>Privacy Policy</h2>
-    <p>We collect the information you submit here solely to process your revision request. Data is stored securely and not shared with third parties without consent.</p>
+    <button type="button" class="glossy-btn" id="unlockBtn"><i class="fas fa-unlock"></i> Unlock dashboard</button>
+    <div class="status" id="gateStatus"></div>
   </div>
-</div>
-<div id="termsModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
-    <h2>Terms of Service</h2>
-    <p>1 free minor revision (fixes to dates or typos) is included within 3 days of delivery. Extra or substantial revisions may carry an additional fee, confirmed with you before work begins.</p>
+
+  <div id="dashboardWrap" style="display:none;">
+    <div class="admin-refresh">
+      <h1 style="font-size:1.4rem;margin:0;font-family:'Fraunces',serif;">Order Pipeline</h1>
+      <button type="button" class="glossy-btn" id="refreshBtn" style="width:auto;padding:.5rem 1rem;"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
+    <div class="pipeline-cols" id="pipelineCols"></div>
   </div>
+
 </div>
 
 <script>
 
 const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
-
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal').forEach(modal => {
-  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
-});
-
-function initNav(activePage){
-  const links = document.querySelectorAll('.nav-link');
-  const liquid = document.getElementById('navLiquid');
-  let activeEl = null;
-  function moveLiquidTo(el){
-    if (!liquid) return;
-    if (!el){ liquid.style.opacity = 0; return; }
-    liquid.style.opacity = 1;
-    liquid.style.left = el.offsetLeft + 'px';
-    liquid.style.width = el.offsetWidth + 'px';
-  }
-  links.forEach(link => {
-    if (link.dataset.page === activePage){ link.classList.add('active'); activeEl = link; }
-    link.addEventListener('mouseenter', () => moveLiquidTo(link));
-    link.addEventListener('touchstart', () => moveLiquidTo(link), {passive:true});
-  });
-  const navLinksEl = document.getElementById('navLinks');
-  if (navLinksEl) navLinksEl.addEventListener('mouseleave', () => moveLiquidTo(activeEl));
-  requestAnimationFrame(() => moveLiquidTo(activeEl));
-  window.addEventListener('resize', () => moveLiquidTo(document.querySelector('.nav-link.active')));
-}
-initNav('more');
-
-const scrollWash = document.getElementById('scrollWash');
-const washPalette = [['#64A1FF','#8BFCFE'],['#9ABDEB','#80F9B7'],['#F095FF','#F64848'],['#FC7B7B','#A6C1FF'],['#D278F2','#FCC989']];
-function hexToRgb(hex){ const n = parseInt(hex.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
-function lerpColor(a,b,t){ const c1=hexToRgb(a),c2=hexToRgb(b); return `rgb(${Math.round(c1[0]+(c2[0]-c1[0])*t)},${Math.round(c1[1]+(c2[1]-c1[1])*t)},${Math.round(c1[2]+(c2[2]-c1[2])*t)})`; }
-function updateWash(){
-  const sh = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = sh > 0 ? Math.min(Math.max(window.scrollY / sh, 0), 1) : 0;
-  const seg = washPalette.length - 1;
-  const pos = progress * seg;
-  const idx = Math.min(Math.floor(pos), seg - 1);
-  const t = pos - idx;
-  const c1 = lerpColor(washPalette[idx][0], washPalette[idx+1][0], t);
-  const c2 = lerpColor(washPalette[idx][1], washPalette[idx+1][1], t);
-  scrollWash.style.background = `radial-gradient(circle at 25% 15%, ${c1}, transparent 55%), radial-gradient(circle at 80% 85%, ${c2}, transparent 55%)`;
-}
-let washTicking = false;
-window.addEventListener('scroll', () => {
-  if (!washTicking){ requestAnimationFrame(() => { updateWash(); washTicking = false; }); washTicking = true; }
-});
-updateWash();
+let ADMIN_KEY = '';
 
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
@@ -1033,145 +895,88 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem('cvform-theme', isDark ? 'dark' : 'light');
 });
 
-// Pre-fill reference number if arriving with ?ref=KTX-0042
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if (ref) document.getElementById('originalReference').value = ref;
-})();
-
-let uploadedFiles = [];
-const refFilesInput = document.getElementById('refFiles');
-const fileGrid = document.getElementById('fileGrid');
-const fileCountEl = document.getElementById('fileCount');
-const addMoreFilesBtn = document.getElementById('addMoreFilesBtn');
-function fileIconFor(file){ return file.type === 'application/pdf' ? 'fa-file-pdf' : 'fa-file'; }
-function renderFiles(){
-  fileGrid.innerHTML = '';
-  uploadedFiles.forEach((file, i) => {
-    const thumb = document.createElement('div');
-    thumb.className = 'file-thumb';
-    if (file.type.startsWith('image/')){
-      const img = document.createElement('img');
-      const reader = new FileReader();
-      reader.onload = () => { img.src = reader.result; };
-      reader.readAsDataURL(file);
-      thumb.appendChild(img);
-    } else {
-      thumb.innerHTML = `<i class="fas ${fileIconFor(file)} file-icon"></i>`;
-    }
-    const nameTag = document.createElement('div');
-    nameTag.className = 'file-name';
-    nameTag.textContent = file.name;
-    thumb.appendChild(nameTag);
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'remove-file';
-    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    removeBtn.addEventListener('click', () => { uploadedFiles.splice(i, 1); renderFiles(); });
-    thumb.appendChild(removeBtn);
-    fileGrid.appendChild(thumb);
-  });
-  fileCountEl.textContent = uploadedFiles.length ? `${uploadedFiles.length} file(s) added` : 'No files added yet';
-}
-refFilesInput.addEventListener('change', () => {
-  [...refFilesInput.files].forEach(f => {
-    const isDupe = uploadedFiles.some(e => e.name === f.name && e.size === f.size);
-    if (!isDupe) uploadedFiles.push(f);
-  });
-  refFilesInput.value = '';
-  renderFiles();
-});
-addMoreFilesBtn.addEventListener('click', () => refFilesInput.click());
-function fileToBase64(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: reader.result.split(',')[1] });
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function validateField(field){
-  const wrap = field.closest('.field, .checkbox-field');
-  const valid = field.checkValidity();
-  if (wrap) wrap.classList.toggle('has-error', !valid);
-  return valid;
-}
-function validateForm(){
-  const required = document.querySelectorAll('#revisionForm [required]');
-  let ok = true;
-  required.forEach(f => { if (!validateField(f)) ok = false; });
-  return ok;
-}
-document.querySelectorAll('#revisionForm [required]').forEach(f => f.addEventListener('blur', () => validateField(f)));
-
-document.getElementById('revisionForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  const statusBox = document.getElementById('statusBox');
-  statusBox.className = 'status';
-  statusBox.textContent = '';
-
-  if (!validateForm()){
-    statusBox.className = 'status err';
-    statusBox.textContent = 'Please fill in the required fields highlighted above.';
-    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+document.getElementById('unlockBtn').addEventListener('click', async () => {
+  const gateStatus = document.getElementById('gateStatus');
+  ADMIN_KEY = document.getElementById('adminKeyInput').value.trim();
+  if (!ADMIN_KEY){
+    gateStatus.className = 'status err';
+    gateStatus.textContent = 'Enter your admin key.';
     return;
   }
   if (SCRIPT_URL.includes('PASTE_YOUR')){
-    statusBox.className = 'status err';
-    statusBox.textContent = 'Form isn\'t connected yet — add your Apps Script Web App URL in SCRIPT_URL.';
+    gateStatus.className = 'status err';
+    gateStatus.textContent = 'Not connected yet — add your Apps Script Web App URL in SCRIPT_URL.';
     return;
   }
-
-  const gooeyWrapper = document.getElementById('gooeyWrapper');
-  const btn = document.getElementById('submitBtn');
-  const submitText = document.getElementById('submitText');
-  const originalLabel = submitText.textContent;
-  btn.disabled = true;
-  gooeyWrapper.classList.remove('success', 'error');
-  gooeyWrapper.classList.add('loading');
-
-  try{
-    const form = document.getElementById('revisionForm');
-    const payload = {};
-    form.querySelectorAll('input:not([type="file"]), textarea, select').forEach(field => {
-      if (!field.name) return;
-      payload[field.name] = (field.type === 'checkbox') ? (field.checked ? 'Yes' : 'No') : field.value;
-    });
-    payload.files = await Promise.all(uploadedFiles.map(fileToBase64));
-
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error(`Server responded ${res.status}`);
-    const result = await res.json();
-    if (result.status !== 'success') throw new Error(result.message || 'Unknown error');
-
-    gooeyWrapper.classList.remove('loading');
-    gooeyWrapper.classList.add('success');
-
-    statusBox.className = 'status ok';
-    statusBox.textContent = `Thank you! Your revision request (${result.reference}) has been received — we'll get back to you shortly.`;
-    submitText.textContent = 'Submitted';
-    form.reset();
-    uploadedFiles = [];
-    renderFiles();
-
-  } catch(err){
-    gooeyWrapper.classList.remove('loading');
-    gooeyWrapper.classList.add('error');
-    setTimeout(() => gooeyWrapper.classList.remove('error'), 1500);
-    statusBox.className = 'status err';
-    statusBox.textContent = `Something went wrong: ${err.message}. Try again, or send your details directly.`;
-    submitText.textContent = originalLabel;
-    btn.disabled = false;
-  } finally {
-    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+  gateStatus.className = 'status';
+  gateStatus.style.display = 'block';
+  gateStatus.textContent = 'Checking...';
+  const result = await loadOrders();
+  if (result){
+    document.getElementById('gateCard').style.display = 'none';
+    document.getElementById('dashboardWrap').style.display = 'block';
   }
 });
+
+document.getElementById('refreshBtn').addEventListener('click', loadOrders);
+
+async function loadOrders(){
+  const gateStatus = document.getElementById('gateStatus');
+  try{
+    const res = await fetch(`${SCRIPT_URL}?action=admin&key=${encodeURIComponent(ADMIN_KEY)}`);
+    const result = await res.json();
+    if (result.status !== 'success'){
+      gateStatus.className = 'status err';
+      gateStatus.textContent = result.message || 'Access denied.';
+      return false;
+    }
+    renderPipeline(result.orders);
+    return true;
+  } catch(err){
+    gateStatus.className = 'status err';
+    gateStatus.textContent = `Error: ${err.message}`;
+    return false;
+  }
+}
+
+function renderPipeline(orders){
+  const cols = { 'Received': [], 'In Progress': [], 'Completed': [] };
+  orders.forEach(o => {
+    if (!cols[o.status]) cols[o.status] = [];
+    cols[o.status].push(o);
+  });
+
+  const icons = { 'Received': 'fa-inbox', 'In Progress': 'fa-gears', 'Completed': 'fa-circle-check' };
+  const wrap = document.getElementById('pipelineCols');
+  wrap.innerHTML = '';
+
+  ['Received', 'In Progress', 'Completed'].forEach(statusName => {
+    const col = document.createElement('div');
+    col.className = 'pipeline-col';
+    const list = cols[statusName] || [];
+    col.innerHTML = `<h3><i class="fas ${icons[statusName]}"></i> ${statusName} <span class="count-badge">${list.length}</span></h3>`;
+    const cardsWrap = document.createElement('div');
+    list.forEach(o => {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.innerHTML = `
+        <div class="order-ref">${o.reference}</div>
+        <div class="order-name">${o.name || 'Unknown'}</div>
+        <div class="order-meta">${o.service}${o.detail ? ' · ' + o.detail : ''}</div>
+        <div class="order-meta">${o.submitted}</div>
+        <span class="pay-tag ${o.paymentConfirmed ? 'confirmed' : 'pending'}">
+          <i class="fas ${o.paymentConfirmed ? 'fa-check-circle' : 'fa-clock'}"></i>
+          ${o.paymentConfirmed ? 'Paid' : 'Payment pending'}
+        </span>`;
+      cardsWrap.appendChild(card);
+    });
+    if (!list.length){
+      cardsWrap.innerHTML = '<p style="font-size:.8rem;color:var(--hint);">Nothing here yet.</p>';
+    }
+    col.appendChild(cardsWrap);
+    wrap.appendChild(col);
+  });
+}
 
 </script>
 </body>
