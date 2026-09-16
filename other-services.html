@@ -393,7 +393,7 @@
   }
   .nav-inner::-webkit-scrollbar{display:none;}
   .nav-logo-mini{display:flex;flex-shrink:0;}
-  .nav-logo-mini svg{width:26px;height:26px;display:block;}
+  .nav-logo-mini svg,.nav-logo-mini img{width:26px;height:26px;display:block;object-fit:contain;}
   .nav-links{position:relative;display:flex;gap:.15rem;margin:0 .25rem;flex-shrink:0;}
   .nav-link{
     position:relative;z-index:2;
@@ -469,7 +469,7 @@
   .skills-count{font-size:.75rem;color:var(--hint);margin-top:.4rem;}
 
   /* Animated shimmer heading */
-  .kinetix-logo{width:64px;height:64px;margin:0 auto .5rem;display:block;animation:logo-breathe 3s ease-in-out infinite;}
+  .kinetix-logo{width:64px;height:64px;margin:0 auto .5rem;display:block;object-fit:contain;animation:logo-breathe 3s ease-in-out infinite;}
   @keyframes logo-breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
   header.hero h1{
     background:linear-gradient(100deg, var(--sky-1) 0%, var(--mint-2) 20%, var(--berry-1) 40%, var(--sunset-1) 60%, var(--citrus-1) 80%, var(--sky-1) 100%);
@@ -828,11 +828,7 @@
 <nav class="kinetix-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="#3f7dfa" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
-          <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
-        </g>
-      </svg>
+      <img src="kinetix-logo.png" alt="KINETIX logo">
     </a>
     <div class="nav-links" id="navLinks">
       <a href="index.html" class="nav-link" data-page="index">Rates</a>
@@ -853,20 +849,7 @@
 
 <div class="wrap">
   <header class="hero">
-    <svg class="kinetix-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KINETIX logo">
-      <defs>
-        <linearGradient id="kGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0">
-          <stop offset="0%" stop-color="#64A1FF"/>
-          <stop offset="50%" stop-color="#80F9B7"/>
-          <stop offset="100%" stop-color="#64A1FF"/>
-          <animate attributeName="x1" values="-200;200;-200" dur="4s" repeatCount="indefinite"/>
-          <animate attributeName="x2" values="0;400;0" dur="4s" repeatCount="indefinite"/>
-        </linearGradient>
-      </defs>
-      <g stroke="url(#kGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <path d="M 55 20 L 55 180"/><path d="M 55 100 L 155 20"/><path d="M 55 100 L 155 180"/>
-      </g>
-    </svg>
+    <img src="kinetix-logo.png" class="kinetix-logo" alt="KINETIX logo">
     <h1>KINETIX</h1>
     <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
     <p>Other document services — beyond CVs.</p>
