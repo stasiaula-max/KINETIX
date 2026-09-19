@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINETIX — Payslip Formatting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#12212e;
+    --paper:#f6f3ec;
+    --card:rgba(255, 255, 255, 0.88);
+    --line:rgba(200, 210, 225, 0.6);
+    --brass:#3f7dfa;
+    --brass-dark:#2f63d6;
+    --ok:#2f6f4f;
+    --err:#b3452e;
+    --radius:16px;
+    --maxjobs:6;
+    --field-bg:rgba(253, 252, 250, 0.65);
+    --muted:#5a5f6d;
+    --hint:#8a8f9c;
+    --chip-bg:rgba(228, 238, 255, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.5);
+    --glass-shadow:0 8px 32px 0 rgba(63, 125, 250, 0.12);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.35), rgba(128,249,183,0.28));
+
+    --sky-1:#64A1FF;   --sky-2:#8BFCFE;
+    --mint-1:#9ABDEB;  --mint-2:#80F9B7;
+    --berry-1:#F095FF; --berry-2:#F64848;
+    --sunset-1:#FC7B7B;--sunset-2:#A6C1FF;
+    --citrus-1:#D278F2;--citrus-2:#FCC989;
+    --grad-sky:linear-gradient(135deg, var(--sky-1), var(--sky-2));
+    --grad-mint:linear-gradient(135deg, var(--mint-1), var(--mint-2));
+    --grad-berry:linear-gradient(135deg, var(--berry-1), var(--berry-2));
+    --grad-sunset:linear-gradient(135deg, var(--sunset-1), var(--sunset-2));
+    --grad-citrus:linear-gradient(135deg, var(--citrus-1), var(--citrus-2));
+  }
+  body.dark{
+    --ink:#eef2f8;
+    --paper:#0e1420;
+    --card:rgba(24, 30, 42, 0.85);
+    --line:rgba(70, 82, 105, 0.6);
+    --brass:#7fb4ff;
+    --brass-dark:#a8cfff;
+    --ok:#6fc79a;
+    --err:#e08265;
+    --field-bg:rgba(18, 23, 33, 0.6);
+    --muted:#a9b2c3;
+    --hint:#77869c;
+    --chip-bg:rgba(38, 47, 66, 0.85);
+    --glass-border:1px solid rgba(255, 255, 255, 0.08);
+    --glass-shadow:0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --modal-backdrop:linear-gradient(135deg, rgba(100,161,255,0.22), rgba(128,249,183,0.16));
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    transition:background .4s ease, color .25s ease;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .scroll-wash{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    filter:blur(90px);
+    opacity:0.45;
+    transition:background 0.5s ease;
+  }
+  body.dark .scroll-wash{opacity:0.3;}
+  .wrap{max-width:680px;margin:0 auto;padding:4.5rem 1.25rem 5rem;position:relative;z-index:1;}
+  header.hero{
+    padding:1rem 0 2rem;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:2rem;
+    text-align:center;
+  }
+  header.hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(1.8rem,5vw,2.4rem);
+    margin:0 0 .4rem;
+    letter-spacing:-0.01em;
+  }
+  header.hero p{margin:0 auto;color:var(--muted);font-size:.98rem;max-width:52ch;}
+
+  .card{
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-radius:var(--radius);
+    padding:1.5rem;
+    margin-bottom:1.25rem;
+    transition:transform .2s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(63,125,250,0.16);}
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    font-weight:600;
+    margin:0 0 1.1rem;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .card h2 i{color:var(--brass);font-size:1rem;}
+
+  .field{margin-bottom:1rem;}
+  .field:last-child{margin-bottom:0;}
+  .field label{
+    display:block;
+    font-size:.82rem;
+    font-weight:600;
+    margin-bottom:.35rem;
+    color:var(--ink);
+  }
+  .field .hint{font-weight:400;color:var(--hint);font-size:.78rem;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+  @media(max-width:520px){.row{grid-template-columns:1fr;}}
+
+  input, textarea, select{
+    width:100%;
+    padding:.7rem .85rem;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    font-family:'Inter',sans-serif;
+    font-size:.95rem;
+    background:var(--field-bg);
+    color:var(--ink);
+    transition:border-color .15s ease, box-shadow .15s ease, background .25s ease;
+  }
+  textarea{resize:vertical;min-height:5rem;}
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(168,117,47,0.15);
+  }
+  input:invalid:not(:placeholder-shown){border-color:var(--err);}
+  input[type="file"]{padding:.55rem;}
+
+  .entry{
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:1.1rem;
+    margin-bottom:.9rem;
+    position:relative;
+    background:var(--field-bg);
+    transition:background .25s ease;
+  }
+  .entry .entry-num{
+    position:absolute;
+    top:-.6rem;
+    left:.9rem;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:.7rem;
+    font-weight:600;
+    padding:.15rem .55rem;
+    border-radius:20px;
+  }
+  .entry .remove-entry{
+    position:absolute;
+    top:.6rem;
+    right:.6rem;
+    background:none;
+    border:none;
+    color:#a99;
+    cursor:pointer;
+    font-size:.95rem;
+    padding:.25rem;
+    line-height:1;
+  }
+  .entry .remove-entry:hover{color:var(--err);}
+
+  .add-btn{
+    width:100%;
+    padding:.7rem;
+    background:none;
+    border:1.5px dashed var(--line);
+    border-radius:8px;
+    color:var(--brass-dark);
+    font-weight:600;
+    font-size:.88rem;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .add-btn:hover{border-color:var(--brass);background:var(--chip-bg);}
+  .add-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .cap-note{font-size:.75rem;color:var(--hint);margin-top:.4rem;text-align:center;}
+
+  /* CV template picker */
+  .template-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.7rem;
+  }
+  .template-option{
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:.7rem;
+    cursor:pointer;
+    background:var(--field-bg);
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .template-option:hover{transform:translateY(-2px);}
+  .template-option.selected{border-color:var(--brass);box-shadow:0 0 0 3px rgba(63,125,250,0.15);}
+  .template-name{font-size:.78rem;font-weight:700;margin-top:.5rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+  .template-desc{font-size:.68rem;color:var(--hint);margin-top:.15rem;line-height:1.3;}
+  .ats-tag{
+    background:var(--ok);color:#fff;font-size:.58rem;font-weight:700;
+    padding:.1rem .4rem;border-radius:10px;
+  }
+  .template-preview{
+    height:64px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid var(--line);
+    padding:.4rem .5rem;
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .template-preview span{display:block;height:4px;border-radius:2px;background:#c9ced8;width:100%;}
+  .template-preview span.short{width:55%;}
+  .template-preview span.thin{height:2px;background:#dde1e8;}
+
+  .preview-ats-classic span{background:#9aa4b5;}
+  .preview-ats-classic span:first-child{width:70%;margin:0 auto;background:#5a6478;height:6px;}
+
+  .preview-ats-minimal span{background:#9aa4b5;}
+  .preview-ats-minimal span:first-child{width:60%;background:#333;height:6px;}
+
+  .preview-navy-sidebar{flex-direction:row;padding:0;gap:0;}
+  .preview-navy-sidebar .bar{width:30%;background:#12212e;height:100%;flex-shrink:0;}
+  .preview-navy-sidebar .lines{flex:1;padding:.4rem .5rem;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-navy-sidebar .lines span{background:#8bb4ff;}
+
+  .preview-bold-header{padding:0;}
+  .preview-bold-header .band{height:22px;background:linear-gradient(90deg,var(--sky-1),var(--mint-2));}
+  .preview-bold-header span{margin:.3rem .5rem 0;background:#9aa4b5;}
+
+  .preview-minimalist span{background:#c9ced8;}
+  .preview-minimalist span.thin{background:#e4e7ec;}
+
+  .preview-two-column{flex-direction:row;gap:.4rem;}
+  .preview-two-column .col{flex:1;display:flex;flex-direction:column;gap:.3rem;justify-content:center;}
+  .preview-two-column .col span{background:#9aa4b5;}
+
+  /* Gooey submit button */
+  .gooey-wrapper{
+    position:relative;
+    width:100%;
+    height:68px;
+    margin-bottom:.5rem;
+  }
+  .gooey-wrapper.loading, .gooey-wrapper.success{filter:drop-shadow(0 0 10px rgba(100,161,255,0.5));}
+  .gooey-submit{
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+    width:100%;
+    height:60px;
+    padding:0;
+    background:linear-gradient(135deg, var(--sky-1), var(--mint-2));
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    z-index:3;
+    transition:width .5s cubic-bezier(.65,0,.35,1), border-radius .5s ease, background .4s ease, color .3s ease;
+  }
+  .gooey-submit:disabled{cursor:not-allowed;}
+  .gooey-wrapper.loading .gooey-submit,
+  .gooey-wrapper.success .gooey-submit{
+    width:60px;
+    color:rgba(255,255,255,0);
+  }
+  .gooey-wrapper.success .gooey-submit{background:linear-gradient(135deg, var(--ok), #4fb98a);}
+  .gooey-wrapper.error .gooey-submit{background:linear-gradient(135deg, var(--err), #d9634a);}
+
+  .gooey-loader-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:2;
+    opacity:0;
+    pointer-events:none;
+  }
+  .gooey-wrapper.loading .gooey-loader-wrap{opacity:1;}
+  .gooey-dot{
+    position:absolute;
+    top:50%;left:50%;
+    width:60px;height:60px;
+    margin:-30px 0 0 -30px;
+    border-radius:50%;
+  }
+  .dot-sky{background:var(--sky-1);}
+  .dot-mint{background:var(--mint-2);}
+  .dot-berry{background:var(--berry-1);}
+  .gooey-wrapper.loading .dot-sky{animation:orbit-a 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-mint{animation:orbit-b 1.6s linear infinite;}
+  .gooey-wrapper.loading .dot-berry{animation:orbit-c 1.6s linear infinite;}
+  @keyframes orbit-a{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(38px,0);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+  @keyframes orbit-b{
+    0%{transform:scale(.35) translate(0,0) rotate(0deg);}
+    50%{transform:scale(.35) translate(-26px,-26px) rotate(0deg);}
+    100%{transform:scale(.35) translate(0,0) rotate(0deg);}
+  }
+  @keyframes orbit-c{
+    0%{transform:scale(.35) translate(0,0);}
+    50%{transform:scale(.35) translate(-26px,26px);}
+    100%{transform:scale(.35) translate(0,0);}
+  }
+
+  .gooey-check-wrap{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;
+    z-index:4;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;
+  }
+  .gooey-wrapper.success .gooey-check-wrap{opacity:1;}
+  .gooey-check-wrap svg{width:32px;height:20px;}
+  .gooey-check{
+    fill:none;
+    stroke:#fff;
+    stroke-width:10;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:1000;
+    stroke-dashoffset:1000;
+  }
+  .gooey-wrapper.success .gooey-check{animation:draw-check .6s .1s ease forwards;}
+  @keyframes draw-check{to{stroke-dashoffset:0;}}
+
+  .status{
+    margin-top:1rem;
+    padding:.85rem 1rem;
+    border-radius:8px;
+    font-size:.9rem;
+    display:none;
+  }
+  .status.ok{display:block;background:#eaf3ee;color:var(--ok);border:1px solid #bfdccb;}
+  .status.err{display:block;background:#fbece7;color:var(--err);border:1px solid #f0c3b4;}
+
+  .error-msg{color:var(--err);font-size:.78rem;margin-top:.3rem;display:none;}
+  .field.has-error input, .field.has-error textarea{border-color:var(--err);}
+  .field.has-error .error-msg{display:block;}
+
+  body.dark .status.ok{background:#1c3327;border-color:#2f5540;}
+  body.dark .status.err{background:#3a2118;border-color:#5c3627;}
+
+  /* Theme toggle */
+  /* KINETIX glass liquid nav bar */
+  .kinetix-nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:center;
+    padding:.7rem .6rem;
+    pointer-events:none;
+  }
+  .nav-inner{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:.3rem;
+    background:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:50px;
+    padding:.35rem .5rem .35rem .8rem;
+    max-width:100%;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .nav-inner::-webkit-scrollbar{display:none;}
+  .nav-logo-mini{display:flex;flex-shrink:0;}
+  .nav-logo-mini svg,.nav-logo-mini img{width:26px;height:26px;display:block;object-fit:contain;}
+  .nav-links{position:relative;display:flex;gap:.15rem;margin:0 .25rem;flex-shrink:0;}
+  .nav-link{
+    position:relative;z-index:2;
+    padding:.45rem .75rem;
+    border-radius:30px;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--muted);
+    text-decoration:none;
+    white-space:nowrap;
+    transition:color .3s ease;
+  }
+  .nav-link.active, .nav-link:hover{color:#fff;}
+  .nav-liquid{
+    position:absolute;top:0;left:0;height:100%;
+    background:var(--grad-sky);
+    border-radius:30px;
+    z-index:1;
+    opacity:0;
+    transition:left .45s cubic-bezier(.65,0,.35,1), width .45s cubic-bezier(.65,0,.35,1), border-radius .3s ease, opacity .2s ease;
+  }
+  .nav-theme-btn{
+    width:32px;height:32px;border-radius:50%;
+    border:none;
+    background:var(--field-bg);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;font-size:.9rem;
+    transition:transform .15s ease;
+  }
+  .nav-theme-btn:hover{transform:scale(1.08);}
+
+  /* Skills — infinite tag input */
+  .skills-box{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem;
+    padding:.6rem;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    background:var(--field-bg);
+  }
+  .skill-chip{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    background:var(--chip-bg);
+    color:var(--ink);
+    padding:.3rem .5rem .3rem .7rem;
+    border-radius:20px;
+    font-size:.85rem;
+    font-weight:500;
+  }
+  .skill-chip button{
+    background:none;
+    border:none;
+    color:var(--hint);
+    cursor:pointer;
+    font-size:.8rem;
+    padding:0;
+    line-height:1;
+    display:flex;
+  }
+  .skill-chip button:hover{color:var(--err);}
+  #skillInput{
+    flex:1;
+    min-width:120px;
+    border:none;
+    padding:.3rem;
+    background:transparent;
+  }
+  #skillInput:focus{outline:none;box-shadow:none;}
+  .skills-count{font-size:.75rem;color:var(--hint);margin-top:.4rem;}
+
+  /* Animated shimmer heading */
+  .kinetix-logo{width:64px;height:64px;margin:0 auto .5rem;display:block;object-fit:contain;animation:logo-breathe 3s ease-in-out infinite;}
+  @keyframes logo-breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  header.hero h1{
+    background:linear-gradient(100deg, var(--sky-1) 0%, var(--mint-2) 20%, var(--berry-1) 40%, var(--sunset-1) 60%, var(--citrus-1) 80%, var(--sky-1) 100%);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:shimmer 5s linear infinite;
+  }
+  header.hero .tagline{
+    font-size:.78rem;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .7rem;
+  }
+  @keyframes shimmer{
+    0%{background-position:300% center;}
+    100%{background-position:-50% center;}
+  }
+  header.hero .hero-icon{
+    display:inline-block;
+    animation:float-pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes float-pulse{
+    0%,100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-4px) scale(1.08);}
+  }
+  @keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes bounce-soft{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+  .icon-spin{display:inline-block;animation:spin-slow 6s linear infinite;}
+  .icon-bounce{display:inline-block;animation:bounce-soft 2.2s ease-in-out infinite;}
+
+  /* Skill add button + suggestion chips */
+  .skill-add-btn{
+    width:32px;height:32px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg, var(--brass), var(--brass-dark));
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.8rem;
+    flex-shrink:0;
+    transition:transform .15s ease;
+  }
+  .skill-add-btn:hover{transform:scale(1.1);}
+  .skill-chip i.fa-tag{font-size:.7rem;opacity:.7;margin-right:.1rem;}
+
+  .suggestions-wrap{margin-top:.7rem;}
+  .suggestions-label{font-size:.78rem;color:var(--hint);margin-bottom:.4rem;display:flex;align-items:center;gap:.35rem;}
+  .suggestions-label i{color:var(--brass);}
+  .suggestion-chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .suggestion-chip{
+    display:flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.35rem .65rem;
+    border-radius:20px;
+    border:1.5px dashed var(--brass);
+    background:transparent;
+    color:var(--brass-dark);
+    font-size:.8rem;
+    font-weight:500;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .suggestion-chip:hover{background:var(--chip-bg);transform:translateY(-1px);}
+  .suggestion-chip.added{
+    border-style:solid;
+    border-color:var(--ok);
+    color:var(--ok);
+    opacity:.55;
+    cursor:default;
+  }
+  .suggestion-chip.added:hover{transform:none;background:transparent;}
+
+  /* Glossy animated "add more" button */
+  .glossy-btn{
+    position:relative;
+    overflow:hidden;
+    width:100%;
+    padding:.75rem;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg, #17708a, #0e4f63);
+    color:#eafcff;
+    font-weight:600;
+    font-size:.9rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    box-shadow:0 4px 14px rgba(23,112,138,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .glossy-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(23,112,138,0.45);}
+  .glossy-btn::after{
+    content:'';
+    position:absolute;
+    top:0;left:-60%;
+    width:40%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform:skewX(-25deg);
+    animation:glossy-sweep 2.8s ease-in-out infinite;
+  }
+  @keyframes glossy-sweep{
+    0%{left:-60%;}
+    45%{left:120%;}
+    100%{left:120%;}
+  }
+
+  /* Glass glowing mint-blue dropzone */
+  .dropzone{
+    position:relative;
+    border:1.5px dashed rgba(64,200,220,0.5);
+    border-radius:12px;
+    background:linear-gradient(135deg, rgba(64,200,220,0.08), rgba(64,150,220,0.04));
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    padding:1.6rem 1rem;
+    text-align:center;
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow:0 0 0 0 rgba(64,200,220,0.4);
+    animation:glow-pulse 3s ease-in-out infinite;
+  }
+  .dropzone:hover, .dropzone.drag-over{
+    border-color:#40c8dc;
+    background:linear-gradient(135deg, rgba(64,200,220,0.15), rgba(64,150,220,0.08));
+  }
+  @keyframes glow-pulse{
+    0%,100%{box-shadow:0 0 8px 0 rgba(64,200,220,0.15);}
+    50%{box-shadow:0 0 18px 4px rgba(64,200,220,0.3);}
+  }
+  .dropzone i{font-size:1.6rem;color:#22aec4;margin-bottom:.5rem;display:block;}
+  .dropzone .dz-text{font-size:.88rem;font-weight:600;color:var(--ink);}
+  .dropzone .dz-hint{font-size:.75rem;color:var(--hint);margin-top:.2rem;}
+  .dropzone input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+    width:100%;height:100%;
+  }
+
+  /* File thumbnail grid */
+  .file-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));
+    gap:.7rem;
+    margin-top:1rem;
+  }
+  .file-thumb{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--field-bg);
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .15s ease;
+  }
+  .file-thumb:hover{transform:translateY(-2px);}
+  .file-thumb img{width:100%;height:100%;object-fit:cover;}
+  .file-thumb .file-icon{font-size:2rem;color:var(--brass);}
+  .file-thumb .file-name{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    font-size:.62rem;
+    padding:.25rem .35rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .file-thumb .remove-file{
+    position:absolute;
+    top:.3rem;right:.3rem;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-size:.65rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+  }
+  .file-thumb .remove-file:hover{background:var(--err);}
+  .file-count{font-size:.78rem;color:var(--hint);margin-top:.5rem;text-align:center;}
+
+  .file-order-badge{
+    position:absolute;
+    top:.3rem;left:.3rem;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--grad-sky);
+    color:#fff;
+    font-size:.62rem;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    z-index:2;
+  }
+  .file-reorder-bar{
+    position:absolute;
+    bottom:1.4rem;left:0;right:0;
+    display:flex;justify-content:center;gap:.3rem;
+    z-index:2;
+  }
+  .file-reorder-bar button{
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-size:.6rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .file-reorder-bar button:hover{background:var(--brass);}
+
+  /* Pricing card */
+  .pricing-card{
+    background:linear-gradient(135deg, var(--card), rgba(255,255,255,0.1));
+    border-color:var(--brass);
+    text-align:center;
+  }
+  .pricing-card h3{margin:0 0 .5rem;color:var(--brass);font-family:'Fraunces',serif;}
+  .pricing-card .price{font-size:1.5rem;font-weight:700;margin:.5rem 0;color:var(--ink);}
+  .pricing-card ul{list-style:none;padding:0;text-align:left;font-size:.9rem;color:var(--muted);}
+  .pricing-card ul li{margin-bottom:.3rem;}
+  .pricing-card ul li i{color:var(--ok);margin-right:.5rem;}
+
+  /* Legal checkbox */
+  .checkbox-field{
+    display:flex;
+    align-items:flex-start;
+    gap:.5rem;
+    margin-bottom:1rem;
+    font-size:.9rem;
+    color:var(--ink);
+  }
+  .checkbox-field input[type="checkbox"]{width:18px;height:18px;margin-top:3px;cursor:pointer;flex-shrink:0;}
+  .checkbox-field label{cursor:pointer;font-weight:400;margin-bottom:0;}
+  .checkbox-field a{color:var(--brass);text-decoration:underline;cursor:pointer;}
+  .checkbox-field.has-error{color:var(--err);}
+
+  /* Floating WhatsApp button */
+  .whatsapp-float{
+    position:fixed;
+    width:56px;height:56px;
+    bottom:20px;right:20px;
+    background-color:#25d366;
+    color:#fff;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    z-index:100;
+    cursor:pointer;
+    transition:transform .2s ease;
+    box-shadow:0 4px 15px rgba(37,211,102,0.4);
+    text-decoration:none;
+  }
+  .whatsapp-float:hover{transform:scale(1.08);}
+
+  /* Footer */
+  .footer{
+    margin-top:3rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--line);
+    text-align:center;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+  .footer-links{margin-bottom:1rem;}
+  .footer-links button{
+    background:none;
+    border:none;
+    color:var(--brass);
+    cursor:pointer;
+    font-size:.85rem;
+    margin:0 .5rem;
+    text-decoration:underline;
+    font-family:'Inter',sans-serif;
+  }
+  .footer-links button:hover{color:var(--ink);}
+
+  /* Legal modals */
+  .modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;top:0;
+    width:100%;height:100%;
+    background:var(--modal-backdrop);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    align-items:center;
+    justify-content:center;
+  }
+  .modal.open{display:flex;}
+  .modal-content{
+    background-color:var(--card);
+    border:var(--glass-border);
+    box-shadow:var(--glass-shadow);
+    margin:auto;
+    padding:2rem;
+    width:90%;
+    max-width:500px;
+    border-radius:var(--radius);
+    position:relative;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .close-modal{
+    color:var(--muted);
+    position:absolute;
+    top:1rem;right:1rem;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+    line-height:1;
+  }
+  .close-modal:hover{color:var(--ink);}
+  .modal h2{font-family:'Fraunces',serif;margin-top:0;color:var(--brass);}
+  .modal p, .modal ul{font-size:.9rem;line-height:1.6;}
+
+  .hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;}
+
+  /* Payslip-specific */
+  .payslip-row{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:end;margin-bottom:.7rem;}
+  .payslip-row .field{margin-bottom:0;}
+  .payslip-row input[type="number"]{width:110px;}
+  .payslip-total{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:.8rem 1rem;background:var(--chip-bg);border-radius:10px;
+    font-weight:700;font-size:1rem;margin-top:.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="scroll-wash" id="scrollWash"></div>
+
+<nav class="kinetix-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo-mini" aria-label="KINETIX home">
+      <img src="kinetix-logo.png" alt="KINETIX logo">
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link" data-page="index">Rates</a>
+      <a href="intake.html" class="nav-link" data-page="intake">Submit</a>
+      <a href="other-services.html" class="nav-link" data-page="more">More</a>
+      <a href="https://wa.me/971544564191" target="_blank" class="nav-link" data-page="contact">Contact</a>
+      <span class="nav-liquid" id="navLiquid"></span>
+    </div>
+    <button type="button" class="nav-theme-btn" id="themeToggle" aria-label="Toggle dark and light mode">
+      <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+  </div>
+</nav>
+
+<a href="https://wa.me/971544564191" class="whatsapp-float" target="_blank" aria-label="Contact us on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<div class="wrap">
+  <header class="hero">
+    <img src="kinetix-logo.png" class="kinetix-logo" alt="KINETIX logo">
+    <h1>KINETIX</h1>
+    <p class="tagline">Perpetual Momentum. Infinite Impact.</p>
+    <p>Payslip formatting — enter the numbers, get a clean formatted payslip PDF.</p>
+  </header>
+
+  <form id="payslipForm" novalidate>
+    <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <input type="hidden" name="formType" value="payslip">
+
+    <div class="card">
+      <h2><i class="fas fa-building"></i> Employer details</h2>
+      <div class="field">
+        <label for="company">Company / Employer name</label>
+        <input type="text" id="company" name="company" required>
+        <div class="error-msg">Enter the company name.</div>
+      </div>
+      <div class="field">
+        <label for="employerAddress">Employer address <span class="hint">(optional)</span></label>
+        <textarea id="employerAddress" name="employerAddress" rows="2" placeholder="e.g. 5th Floor, Towers at The Trade Center, Abu Dhabi, UAE"></textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="country">Country</label>
+          <input type="text" id="country" name="country" value="United Arab Emirates">
+        </div>
+        <div class="field">
+          <label for="payPeriod">Pay period <span class="hint">(e.g. December 2026)</span></label>
+          <input type="text" id="payPeriod" name="payPeriod" required>
+          <div class="error-msg">Enter the pay period.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-user"></i> Employee details</h2>
+      <div class="field">
+        <label for="empName">Employee full name</label>
+        <input type="text" id="empName" name="empName" required>
+        <div class="error-msg">Enter the employee's name.</div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="empId">Client Employee ID <span class="hint">(optional)</span></label>
+          <input type="text" id="empId" name="empId">
+        </div>
+        <div class="field">
+          <label for="systemEmpId">System Employee ID <span class="hint">(optional)</span></label>
+          <input type="text" id="systemEmpId" name="systemEmpId">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="hireDate">Hire date <span class="hint">(optional)</span></label>
+          <input type="text" id="hireDate" name="hireDate" placeholder="e.g. 24-11-2024">
+        </div>
+        <div class="field">
+          <label for="paymentMethod">Payment method</label>
+          <select id="paymentMethod" name="paymentMethod">
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="empEmail">Employee email <span class="hint">(shown on the payslip)</span></label>
+        <input type="email" id="empEmail" name="empEmail">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-plus-circle"></i> Entitlements <span class="hint" style="font-weight:400;font-size:.75rem;">(AED — add each line: Basic, Housing, Overtime, Arrears, etc.)</span></h2>
+      <div id="entitlementsList"></div>
+      <button type="button" class="add-btn" id="addEntitlementBtn"><i class="fas fa-plus"></i> Add entitlement line</button>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-minus-circle"></i> Deductions <span class="hint" style="font-weight:400;font-size:.75rem;">(AED — Advance, Loan, Absence, etc.)</span></h2>
+      <div id="deductionsList"></div>
+      <button type="button" class="add-btn" id="addDeductionBtn"><i class="fas fa-plus"></i> Add deduction line</button>
+      <div class="payslip-total" id="netPayDisplay">Net Pay: 0.00 AED</div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-hand-holding-dollar"></i> Company Contributions <span class="hint" style="font-weight:400;font-size:.75rem;">(optional)</span></h2>
+      <div id="contributionsList"></div>
+      <button type="button" class="add-btn" id="addContributionBtn"><i class="fas fa-plus"></i> Add contribution line</button>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-umbrella-beach"></i> Leave Memo <span class="hint" style="font-weight:400;font-size:.75rem;">(optional — leave blank to omit)</span></h2>
+      <div class="row">
+        <div class="field">
+          <label for="leaveBalancePrev">Leave Balance (start of period)</label>
+          <input type="text" id="leaveBalancePrev" name="leaveBalancePrev" placeholder="e.g. 30/11/2024: 0.97">
+        </div>
+        <div class="field">
+          <label for="leaveAccrual">Leave Accrual (this period)</label>
+          <input type="text" id="leaveAccrual" name="leaveAccrual" placeholder="e.g. DEC 2024: 4.23">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="leaveAvailed">Leave Availed (this period)</label>
+          <input type="text" id="leaveAvailed" name="leaveAvailed" placeholder="e.g. DEC 2024: 0">
+        </div>
+        <div class="field">
+          <label for="leaveBalanceEnd">Leave Balance (end of period)</label>
+          <input type="text" id="leaveBalanceEnd" name="leaveBalanceEnd" placeholder="e.g. 31/12/2024: 5.2">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-university"></i> Banking Details</h2>
+      <div class="row">
+        <div class="field">
+          <label for="bankName">Bank name</label>
+          <input type="text" id="bankName" name="bankName">
+        </div>
+        <div class="field">
+          <label for="beneficiaryName">Beneficiary name <span class="hint">(defaults to employee name)</span></label>
+          <input type="text" id="beneficiaryName" name="beneficiaryName">
+        </div>
+      </div>
+      <div class="field">
+        <label for="accountNumber">Account number / IBAN</label>
+        <input type="text" id="accountNumber" name="accountNumber">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="accountCurrency">Account currency</label>
+          <input type="text" id="accountCurrency" name="accountCurrency" value="AED">
+        </div>
+        <div class="field">
+          <label for="accountType">Account type</label>
+          <select id="accountType" name="accountType">
+            <option value="Primary">Primary</option>
+            <option value="Secondary">Secondary</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-address-card"></i> Your contact details <span class="hint" style="font-weight:400;font-size:.75rem;">(for us to reach you — not shown on the payslip)</span></h2>
+      <div class="field">
+        <label for="clientPhone">Phone / WhatsApp</label>
+        <input type="tel" id="clientPhone" name="clientPhone" required>
+        <div class="error-msg">Enter a phone number.</div>
+      </div>
+      <div class="field">
+        <label for="clientEmail">Email</label>
+        <input type="email" id="clientEmail" name="clientEmail" required>
+        <div class="error-msg">Enter a valid email.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-paperclip"></i> Reference documents <span class="hint" style="font-weight:400;font-size:.75rem;">(optional)</span></h2>
+      <label class="dropzone" id="dropzone">
+        <i class="fas fa-cloud-arrow-up icon-bounce"></i>
+        <div class="dz-text">Tap to choose files</div>
+        <div class="dz-hint">Old payslip, screenshots, or notes — PDF/JPG/PNG</div>
+        <input type="file" id="refFiles" multiple accept=".pdf,.jpg,.jpeg,.png">
+      </label>
+      <div class="file-grid" id="fileGrid"></div>
+      <div class="file-count" id="fileCount">No files added yet</div>
+      <button type="button" class="glossy-btn" id="addMoreFilesBtn" style="margin-top:.9rem;">
+        <i class="fas fa-plus"></i> Add more files
+      </button>
+    </div>
+
+    <div class="checkbox-field">
+      <input type="checkbox" id="legalCheck" name="legalCheck" required>
+      <label for="legalCheck">
+        I agree to the <a onclick="openModal('privacyModal')">Privacy Policy</a> and <a onclick="openModal('termsModal')">Terms of Service</a>.
+      </label>
+    </div>
+
+    <div class="gooey-wrapper" id="gooeyWrapper">
+      <button type="submit" class="gooey-submit" id="submitBtn">
+        <span id="submitText">Submit payslip request</span>
+      </button>
+      <div class="gooey-loader-wrap">
+        <span class="gooey-dot dot-sky"></span>
+        <span class="gooey-dot dot-mint"></span>
+        <span class="gooey-dot dot-berry"></span>
+      </div>
+      <div class="gooey-check-wrap">
+        <svg viewBox="0 0 64.5 37.4"><polyline class="gooey-check" points="5,13 21.8,32.4 59.5,5"/></svg>
+      </div>
+    </div>
+    <div class="status" id="statusBox"></div>
+  </form>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <button type="button" onclick="openModal('privacyModal')">Privacy Policy</button>
+      <button type="button" onclick="openModal('termsModal')">Terms of Service</button>
+    </div>
+    <p>
+      <i class="fas fa-envelope"></i> maxmeely@pm.me<br>
+      <i class="fab fa-whatsapp"></i> +971 54 456 4191<br><br>
+      © 2026 All Rights Reserved.
+    </p>
+  </footer>
+</div>
+
+<div id="privacyModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('privacyModal')">&times;</span>
+    <h2>Privacy Policy</h2>
+    <p>We collect the information you submit here solely to prepare your formatted payslip. Data is stored securely and not shared with third parties without consent.</p>
+  </div>
+</div>
+<div id="termsModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
+    <h2>Terms of Service</h2>
+    <p>100% upfront payment is required before work begins. Standard turnaround is 24–48 hours after payment and details are received.</p>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+});
+
+// ---------- Liquid nav ----------
+function initNav(activePage){
+  const links = document.querySelectorAll('.nav-link');
+  const liquid = document.getElementById('navLiquid');
+  let activeEl = null;
+  function moveLiquidTo(el){
+    if (!liquid) return;
+    if (!el){ liquid.style.opacity = 0; return; }
+    liquid.style.opacity = 1;
+    liquid.style.left = el.offsetLeft + 'px';
+    liquid.style.width = el.offsetWidth + 'px';
+  }
+  links.forEach(link => {
+    if (link.dataset.page === activePage){ link.classList.add('active'); activeEl = link; }
+    link.addEventListener('mouseenter', () => moveLiquidTo(link));
+    link.addEventListener('touchstart', () => moveLiquidTo(link), {passive:true});
+  });
+  const navLinksEl = document.getElementById('navLinks');
+  if (navLinksEl) navLinksEl.addEventListener('mouseleave', () => moveLiquidTo(activeEl));
+  requestAnimationFrame(() => moveLiquidTo(activeEl));
+  window.addEventListener('resize', () => moveLiquidTo(document.querySelector('.nav-link.active')));
+}
+initNav('more');
+
+// ---------- Scroll wash ----------
+const scrollWash = document.getElementById('scrollWash');
+const washPalette = [['#64A1FF','#8BFCFE'],['#9ABDEB','#80F9B7'],['#F095FF','#F64848'],['#FC7B7B','#A6C1FF'],['#D278F2','#FCC989']];
+function hexToRgb(hex){ const n = parseInt(hex.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+function lerpColor(a,b,t){ const c1=hexToRgb(a),c2=hexToRgb(b); return `rgb(${Math.round(c1[0]+(c2[0]-c1[0])*t)},${Math.round(c1[1]+(c2[1]-c1[1])*t)},${Math.round(c1[2]+(c2[2]-c1[2])*t)})`; }
+function updateWash(){
+  const sh = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = sh > 0 ? Math.min(Math.max(window.scrollY / sh, 0), 1) : 0;
+  const seg = washPalette.length - 1;
+  const pos = progress * seg;
+  const idx = Math.min(Math.floor(pos), seg - 1);
+  const t = pos - idx;
+  const c1 = lerpColor(washPalette[idx][0], washPalette[idx+1][0], t);
+  const c2 = lerpColor(washPalette[idx][1], washPalette[idx+1][1], t);
+  scrollWash.style.background = `radial-gradient(circle at 25% 15%, ${c1}, transparent 55%), radial-gradient(circle at 80% 85%, ${c2}, transparent 55%)`;
+}
+let washTicking = false;
+window.addEventListener('scroll', () => {
+  if (!washTicking){ requestAnimationFrame(() => { updateWash(); washTicking = false; }); washTicking = true; }
+});
+updateWash();
+
+// ---------- Theme toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+if (localStorage.getItem('cvform-theme') === 'dark'){ document.body.classList.add('dark'); themeIcon.className = 'fas fa-sun'; }
+themeToggle.addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark');
+  themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  localStorage.setItem('cvform-theme', isDark ? 'dark' : 'light');
+});
+
+// ---------- Dynamic entitlement / deduction / contribution lines ----------
+let entitlementCount = 0, deductionCount = 0, contributionCount = 0;
+
+function lineRowHTML(n, prefix, placeholderLabel){
+  return `
+    <div class="entry" data-line="${n}">
+      <span class="entry-num">${n}</span>
+      <button type="button" class="remove-entry" aria-label="Remove"><i class="fas fa-times"></i></button>
+      <div class="row">
+        <div class="field">
+          <label>Description</label>
+          <input type="text" name="${prefix}Label_${n}" placeholder="${placeholderLabel}">
+        </div>
+        <div class="field">
+          <label>Amount (AED)</label>
+          <input type="number" name="${prefix}Amount_${n}" step="0.01" class="line-amount" data-prefix="${prefix}">
+        </div>
+      </div>
+    </div>`;
+}
+
+function addLine(containerId, prefix, placeholderLabel, counterSetter, counterGetter){
+  const n = counterGetter() + 1;
+  counterSetter(n);
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', lineRowHTML(n, prefix, placeholderLabel));
+  recalcNetPay();
+}
+
+document.getElementById('addEntitlementBtn').addEventListener('click', () => {
+  addLine('entitlementsList', 'entitlement', 'e.g. Basic, Housing, Overtime', v => entitlementCount = v, () => entitlementCount);
+});
+document.getElementById('addDeductionBtn').addEventListener('click', () => {
+  addLine('deductionsList', 'deduction', 'e.g. Advance, Loan, Absence', v => deductionCount = v, () => deductionCount);
+});
+document.getElementById('addContributionBtn').addEventListener('click', () => {
+  addLine('contributionsList', 'contribution', 'e.g. Pension, Insurance', v => contributionCount = v, () => contributionCount);
+});
+
+// Event delegation: remove-line buttons + live recalculation on typing
+['entitlementsList', 'deductionsList', 'contributionsList'].forEach(containerId => {
+  const container = document.getElementById(containerId);
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.remove-entry');
+    if (!btn) return;
+    btn.closest('.entry').remove();
+    recalcNetPay();
+  });
+  container.addEventListener('input', e => {
+    if (e.target.classList.contains('line-amount')) recalcNetPay();
+  });
+});
+
+// Seed one row each so the form doesn't look empty
+addLine('entitlementsList', 'entitlement', 'e.g. Basic, Housing, Overtime', v => entitlementCount = v, () => entitlementCount);
+addLine('deductionsList', 'deduction', 'e.g. Advance, Loan, Absence', v => deductionCount = v, () => deductionCount);
+
+// ---------- Net pay live calculation ----------
+function recalcNetPay(){
+  let earnings = 0, deductions = 0;
+  document.querySelectorAll('#entitlementsList .line-amount').forEach(inp => earnings += parseFloat(inp.value) || 0);
+  document.querySelectorAll('#deductionsList .line-amount').forEach(inp => deductions += parseFloat(inp.value) || 0);
+  const net = earnings - deductions;
+  document.getElementById('netPayDisplay').textContent = `Net Pay: ${net.toFixed(2)} AED`;
+}
+
+// ---------- Beneficiary name defaults to employee name ----------
+document.getElementById('empName').addEventListener('blur', function(){
+  const benField = document.getElementById('beneficiaryName');
+  if (!benField.value.trim()) benField.value = this.value;
+});
+
+// ---------- File uploads (infinite, with thumbnails + reorder) ----------
+let uploadedFiles = [];
+const refFilesInput = document.getElementById('refFiles');
+const fileGrid = document.getElementById('fileGrid');
+const fileCountEl = document.getElementById('fileCount');
+const addMoreFilesBtn = document.getElementById('addMoreFilesBtn');
+
+function fileIconFor(file){ return file.type === 'application/pdf' ? 'fa-file-pdf' : 'fa-file'; }
+
+function renderFiles(){
+  fileGrid.innerHTML = '';
+  uploadedFiles.forEach((file, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'file-thumb';
+    if (file.type.startsWith('image/')){
+      const img = document.createElement('img');
+      const reader = new FileReader();
+      reader.onload = () => { img.src = reader.result; };
+      reader.readAsDataURL(file);
+      thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = `<i class="fas ${fileIconFor(file)} file-icon"></i>`;
+    }
+    const orderBadge = document.createElement('div');
+    orderBadge.className = 'file-order-badge';
+    orderBadge.textContent = i + 1;
+    thumb.appendChild(orderBadge);
+    const nameTag = document.createElement('div');
+    nameTag.className = 'file-name';
+    nameTag.textContent = file.name;
+    thumb.appendChild(nameTag);
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-file';
+    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    removeBtn.addEventListener('click', () => { uploadedFiles.splice(i, 1); renderFiles(); });
+    thumb.appendChild(removeBtn);
+    fileGrid.appendChild(thumb);
+  });
+  fileCountEl.textContent = uploadedFiles.length ? `${uploadedFiles.length} file(s) added` : 'No files added yet';
+}
+
+refFilesInput.addEventListener('change', () => {
+  [...refFilesInput.files].forEach(f => {
+    const isDupe = uploadedFiles.some(e => e.name === f.name && e.size === f.size);
+    if (!isDupe) uploadedFiles.push(f);
+  });
+  refFilesInput.value = '';
+  renderFiles();
+});
+addMoreFilesBtn.addEventListener('click', () => refFilesInput.click());
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: reader.result.split(',')[1] });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------- Validation ----------
+function validateField(field){
+  const wrap = field.closest('.field, .checkbox-field');
+  const valid = field.checkValidity();
+  if (wrap) wrap.classList.toggle('has-error', !valid);
+  return valid;
+}
+function validateForm(){
+  const required = document.querySelectorAll('#payslipForm [required]');
+  let ok = true;
+  required.forEach(f => { if (!validateField(f)) ok = false; });
+  return ok;
+}
+document.querySelectorAll('#payslipForm [required]').forEach(f => f.addEventListener('blur', () => validateField(f)));
+
+// ---------- Submit ----------
+document.getElementById('payslipForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const statusBox = document.getElementById('statusBox');
+  statusBox.className = 'status';
+  statusBox.textContent = '';
+
+  if (!validateForm()){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Please fill in the required fields highlighted above.';
+    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  if (SCRIPT_URL.includes('PASTE_YOUR')){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Form isn\'t connected yet — add your Apps Script Web App URL in SCRIPT_URL.';
+    return;
+  }
+
+  const gooeyWrapper = document.getElementById('gooeyWrapper');
+  const btn = document.getElementById('submitBtn');
+  const submitText = document.getElementById('submitText');
+  btn.disabled = true;
+  gooeyWrapper.classList.remove('success', 'error');
+  gooeyWrapper.classList.add('loading');
+
+  try{
+    const form = document.getElementById('payslipForm');
+    const payload = {};
+    form.querySelectorAll('input:not([type="file"]), textarea, select').forEach(field => {
+      if (!field.name) return;
+      payload[field.name] = (field.type === 'checkbox') ? (field.checked ? 'Yes' : 'No') : field.value;
+    });
+    payload.files = await Promise.all(uploadedFiles.map(fileToBase64));
+
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
+    const result = await res.json();
+    if (result.status !== 'success') throw new Error(result.message || 'Unknown error');
+
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('success');
+
+    // Auto-download the generated PDF immediately — no waiting on email
+    if (result.pdfBase64){
+      try{
+        const byteChars = atob(result.pdfBase64);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = result.pdfFilename || 'payslip.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+      } catch(dlErr){
+        console.warn('Auto-download failed, PDF still saved and emailed.', dlErr);
+      }
+    }
+
+    statusBox.className = 'status ok';
+    statusBox.textContent = `Thank you! Your payslip PDF is downloading now (reference ${result.reference}). We've also saved a copy and sent a confirmation to your email.`;
+    submitText.textContent = 'Submitted';
+    form.reset();
+    uploadedFiles = [];
+    renderFiles();
+    document.getElementById('entitlementsList').innerHTML = '';
+    document.getElementById('deductionsList').innerHTML = '';
+    document.getElementById('contributionsList').innerHTML = '';
+    entitlementCount = 0; deductionCount = 0; contributionCount = 0;
+    addLine('entitlementsList', 'entitlement', 'e.g. Basic, Housing, Overtime', v => entitlementCount = v, () => entitlementCount);
+    addLine('deductionsList', 'deduction', 'e.g. Advance, Loan, Absence', v => deductionCount = v, () => deductionCount);
+    recalcNetPay();
+
+  } catch(err){
+    gooeyWrapper.classList.remove('loading');
+    gooeyWrapper.classList.add('error');
+    setTimeout(() => gooeyWrapper.classList.remove('error'), 1500);
+    statusBox.className = 'status err';
+    statusBox.textContent = `Something went wrong: ${err.message}. Try again, or send your details directly.`;
+    submitText.textContent = 'Submit payslip request';
+    btn.disabled = false;
+  } finally {
+    statusBox.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+</script>
+</body>
+</html>
